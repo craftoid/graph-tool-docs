@@ -1,0 +1,1980 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>graph_tool.topology - Assessing graph topology &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="index.html" />
+    <link rel="up" title="graph_tool - efficient graph analysis and manipulation" href="graph_tool.html" />
+    <link rel="next" title="graph_tool.util - Graph utilities" href="util.html" />
+    <link rel="prev" title="graph_tool.stats - Miscellaneous statistics" href="stats.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="graph_tool.util - Graph utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="stats.html" title="graph_tool.stats - Miscellaneous statistics"
+             accesskey="P">previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="modules.html" >Module documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="graph_tool.html" accesskey="U">graph_tool - efficient graph analysis and manipulation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-graph_tool.topology"></span><div class="section" id="graph-tool-topology-assessing-graph-topology">
+<h1><code class="docutils literal"><span class="pre">graph_tool.topology</span></code> - Assessing graph topology<a class="headerlink" href="#graph-tool-topology-assessing-graph-topology" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.shortest_distance" title="graph_tool.topology.shortest_distance"><code class="xref py py-obj docutils literal"><span class="pre">shortest_distance</span></code></a></td>
+<td>Calculate the distance from a source to a target vertex, or to of all vertices from a given source, or the all pairs shortest paths, if the source is not specified.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.shortest_path" title="graph_tool.topology.shortest_path"><code class="xref py py-obj docutils literal"><span class="pre">shortest_path</span></code></a></td>
+<td>Return the shortest path from <cite>source</cite> to <cite>target</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.pseudo_diameter" title="graph_tool.topology.pseudo_diameter"><code class="xref py py-obj docutils literal"><span class="pre">pseudo_diameter</span></code></a></td>
+<td>Compute the pseudo-diameter of the graph.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.similarity" title="graph_tool.topology.similarity"><code class="xref py py-obj docutils literal"><span class="pre">similarity</span></code></a></td>
+<td>Return the adjacency similarity between the two graphs.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.isomorphism" title="graph_tool.topology.isomorphism"><code class="xref py py-obj docutils literal"><span class="pre">isomorphism</span></code></a></td>
+<td>Check whether two graphs are isomorphic.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.subgraph_isomorphism" title="graph_tool.topology.subgraph_isomorphism"><code class="xref py py-obj docutils literal"><span class="pre">subgraph_isomorphism</span></code></a></td>
+<td>Obtain all subgraph isomorphisms of <cite>sub</cite> in <cite>g</cite> (or at most <cite>max_n</cite> subgraphs, if <cite>max_n &gt; 0</cite>).</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.mark_subgraph" title="graph_tool.topology.mark_subgraph"><code class="xref py py-obj docutils literal"><span class="pre">mark_subgraph</span></code></a></td>
+<td>Mark a given subgraph <cite>sub</cite> on the graph <cite>g</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.max_cardinality_matching" title="graph_tool.topology.max_cardinality_matching"><code class="xref py py-obj docutils literal"><span class="pre">max_cardinality_matching</span></code></a></td>
+<td>Find a maximum cardinality matching in the graph.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.max_independent_vertex_set" title="graph_tool.topology.max_independent_vertex_set"><code class="xref py py-obj docutils literal"><span class="pre">max_independent_vertex_set</span></code></a></td>
+<td>Find a maximal independent vertex set in the graph.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.min_spanning_tree" title="graph_tool.topology.min_spanning_tree"><code class="xref py py-obj docutils literal"><span class="pre">min_spanning_tree</span></code></a></td>
+<td>Return the minimum spanning tree of a given graph.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.random_spanning_tree" title="graph_tool.topology.random_spanning_tree"><code class="xref py py-obj docutils literal"><span class="pre">random_spanning_tree</span></code></a></td>
+<td>Return a random spanning tree of a given graph, which can be directed or undirected.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.dominator_tree" title="graph_tool.topology.dominator_tree"><code class="xref py py-obj docutils literal"><span class="pre">dominator_tree</span></code></a></td>
+<td>Return a vertex property map the dominator vertices for each vertex.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.topological_sort" title="graph_tool.topology.topological_sort"><code class="xref py py-obj docutils literal"><span class="pre">topological_sort</span></code></a></td>
+<td>Return the topological sort of the given graph.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.transitive_closure" title="graph_tool.topology.transitive_closure"><code class="xref py py-obj docutils literal"><span class="pre">transitive_closure</span></code></a></td>
+<td>Return the transitive closure graph of g.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.tsp_tour" title="graph_tool.topology.tsp_tour"><code class="xref py py-obj docutils literal"><span class="pre">tsp_tour</span></code></a></td>
+<td>Return a traveling salesman tour of the graph, which is guaranteed to be twice as long as the optimal tour in the worst case.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.sequential_vertex_coloring" title="graph_tool.topology.sequential_vertex_coloring"><code class="xref py py-obj docutils literal"><span class="pre">sequential_vertex_coloring</span></code></a></td>
+<td>Returns a vertex coloring of the graph.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.label_components" title="graph_tool.topology.label_components"><code class="xref py py-obj docutils literal"><span class="pre">label_components</span></code></a></td>
+<td>Label the components to which each vertex in the graph belongs.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.label_biconnected_components" title="graph_tool.topology.label_biconnected_components"><code class="xref py py-obj docutils literal"><span class="pre">label_biconnected_components</span></code></a></td>
+<td>Label the edges of biconnected components, and the vertices which are articulation points.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.label_largest_component" title="graph_tool.topology.label_largest_component"><code class="xref py py-obj docutils literal"><span class="pre">label_largest_component</span></code></a></td>
+<td>Label the largest component in the graph.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.label_out_component" title="graph_tool.topology.label_out_component"><code class="xref py py-obj docutils literal"><span class="pre">label_out_component</span></code></a></td>
+<td>Label the out-component (or simply the component for undirected graphs) of a root vertex.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.kcore_decomposition" title="graph_tool.topology.kcore_decomposition"><code class="xref py py-obj docutils literal"><span class="pre">kcore_decomposition</span></code></a></td>
+<td>Perform a k-core decomposition of the given graph.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.is_bipartite" title="graph_tool.topology.is_bipartite"><code class="xref py py-obj docutils literal"><span class="pre">is_bipartite</span></code></a></td>
+<td>Test if the graph is bipartite.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.is_DAG" title="graph_tool.topology.is_DAG"><code class="xref py py-obj docutils literal"><span class="pre">is_DAG</span></code></a></td>
+<td>Return <cite>True</cite> if the graph is a directed acyclic graph (DAG).</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.is_planar" title="graph_tool.topology.is_planar"><code class="xref py py-obj docutils literal"><span class="pre">is_planar</span></code></a></td>
+<td>Test if the graph is planar.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.topology.make_maximal_planar" title="graph_tool.topology.make_maximal_planar"><code class="xref py py-obj docutils literal"><span class="pre">make_maximal_planar</span></code></a></td>
+<td>Add edges to the graph to make it maximally planar.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.topology.edge_reciprocity" title="graph_tool.topology.edge_reciprocity"><code class="xref py py-obj docutils literal"><span class="pre">edge_reciprocity</span></code></a></td>
+<td>Calculate the edge reciprocity of the graph.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="graph_tool.topology.similarity">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">similarity</code><span class="sig-paren">(</span><em>g1</em>, <em>g2</em>, <em>label1=None</em>, <em>label2=None</em>, <em>norm=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the adjacency similarity between the two graphs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g1</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>First graph to be compared.</p>
+</div></blockquote>
+<p><strong>g2</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Second graph to be compared.</p>
+</div></blockquote>
+<p><strong>label1</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <code class="docutils literal"><span class="pre">None</span></code>)</p>
+<blockquote>
+<div><p>Vertex labels for the first graph to be used in comparison. If not
+supplied, the vertex indexes are used.</p>
+</div></blockquote>
+<p><strong>label2</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <code class="docutils literal"><span class="pre">None</span></code>)</p>
+<blockquote>
+<div><p>Vertex labels for the second graph to be used in comparison. If not
+supplied, the vertex indexes are used.</p>
+</div></blockquote>
+<p><strong>norm</strong> : bool (optional, default: <code class="docutils literal"><span class="pre">True</span></code>)</p>
+<blockquote>
+<div><p>If <code class="docutils literal"><span class="pre">True</span></code>, the returned value is normalized by the total number of
+edges.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>similarity</strong> : float</p>
+<blockquote class="last">
+<div><p>Adjacency similarity value.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The adjacency similarity is the sum of equal entries in the adjacency
+matrix, given a vertex ordering determined by the vertex labels. In other
+words it counts the number of edges which have the same source and target
+labels in both graphs.</p>
+<p>The algorithm runs with complexity <span class="math">\(O(E_1 + V_1 + E_2 + V_2)\)</span>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">random_rewire</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+<span class="go">24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+<span class="go">0.04666666666666667</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.isomorphism">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">isomorphism</code><span class="sig-paren">(</span><em>g1</em>, <em>g2</em>, <em>vertex_inv1=None</em>, <em>vertex_inv2=None</em>, <em>isomap=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#isomorphism"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.isomorphism" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether two graphs are isomorphic.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g1</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>First graph.</p>
+</div></blockquote>
+<p><strong>g2</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Second graph.</p>
+</div></blockquote>
+<p><strong>vertex_inv1</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>Vertex invariant of the first graph. Only vertices with with the same
+invariants are considered in the isomorphism.</p>
+</div></blockquote>
+<p><strong>vertex_inv2</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>Vertex invariant of the second graph. Only vertices with with the same
+invariants are considered in the isomorphism.</p>
+</div></blockquote>
+<p><strong>isomap</strong> : <code class="docutils literal"><span class="pre">bool</span></code> (optional, default: <code class="docutils literal"><span class="pre">False</span></code>)</p>
+<blockquote>
+<div><p>If <code class="docutils literal"><span class="pre">True</span></code>, a vertex <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> with the
+isomorphism mapping is returned as well.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>is_isomorphism</strong> : <code class="docutils literal"><span class="pre">bool</span></code></p>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">True</span></code> if both graphs are isomorphic, otherwise <code class="docutils literal"><span class="pre">False</span></code>.</p>
+</div></blockquote>
+<p><strong>isomap</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Isomorphism mapping corresponding to a property map belonging to the
+first graph which maps its vertices to their corresponding vertices of
+the second graph.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g2</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">isomorphism</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">g2</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">&lt;...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">isomorphism</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">g2</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.subgraph_isomorphism">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">subgraph_isomorphism</code><span class="sig-paren">(</span><em>sub</em>, <em>g</em>, <em>max_n=0</em>, <em>vertex_label=None</em>, <em>edge_label=None</em>, <em>induced=False</em>, <em>subgraph=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#subgraph_isomorphism"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.subgraph_isomorphism" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain all subgraph isomorphisms of <cite>sub</cite> in <cite>g</cite> (or at most <cite>max_n</cite> subgraphs, if <cite>max_n &gt; 0</cite>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sub</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Subgraph for which to be searched.</p>
+</div></blockquote>
+<p><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph in which the search is performed.</p>
+</div></blockquote>
+<p><strong>max_n</strong> : int (optional, default: <cite>0</cite>)</p>
+<blockquote>
+<div><p>Maximum number of matches to find. If <cite>max_n == 0</cite>, all matches are
+found.</p>
+</div></blockquote>
+<p><strong>vertex_label</strong> : pair of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>If provided, this should be a pair of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a>
+objects, belonging to <cite>sub</cite> and <cite>g</cite> (in this order), which specify vertex labels
+which should match, in addition to the topological isomorphism.</p>
+</div></blockquote>
+<p><strong>edge_label</strong> : pair of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>If provided, this should be a pair of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a>
+objects, belonging to <cite>sub</cite> and <cite>g</cite> (in this order), which specify edge labels
+which should match, in addition to the topological isomorphism.</p>
+</div></blockquote>
+<p><strong>induced</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>If <cite>True</cite>, only node-induced subgraphs are found.</p>
+</div></blockquote>
+<p><strong>subgraph</strong> : bool (optional, default: True)</p>
+<blockquote>
+<div><p>If <cite>False</cite>, all non-subgraph isomorphisms between <cite>sub</cite> and <cite>g</cite> are
+found.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>vertex_maps</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> objects</p>
+<blockquote class="last">
+<div><p>List containing vertex property map objects which indicate different
+isomorphism mappings. The property maps vertices in <cite>sub</cite> to the
+corresponding vertex index in <cite>g</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The implementation is based on the VF2 algorithm, introduced by Cordella et al.
+<a class="reference internal" href="#cordella-improved-2001" id="id1">[cordella-improved-2001]</a> <a class="reference internal" href="#cordella-subgraph-2004" id="id2">[cordella-subgraph-2004]</a>. The spatial complexity
+is of order <span class="math">\(O(V)\)</span>, where <span class="math">\(V\)</span> is the (maximum) number of vertices
+of the two graphs. Time complexity is <span class="math">\(O(V^2)\)</span> in the best case and
+<span class="math">\(O(V!\times V)\)</span> in the worst case.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="cordella-improved-2001" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[cordella-improved-2001]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> L. P. Cordella, P. Foggia, C. Sansone, and M. Vento,
+&#8220;An improved algorithm for matching large graphs.&#8221;, 3rd IAPR-TC15 Workshop
+on Graph-based Representations in Pattern Recognition, pp. 149-159, Cuen, 2001.
+<a class="reference external" href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.101.5342">http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.101.5342</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="cordella-subgraph-2004" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[cordella-subgraph-2004]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> L. P. Cordella, P. Foggia, C. Sansone, and M. Vento,
+&#8220;A (Sub)Graph Isomorphism Algorithm for Matching Large Graphs.&#8221;,
+IEEE Trans. Pattern Anal. Mach. Intell., vol. 26, no. 10, pp. 1367-1372, 2004. 
+<a class="reference external" href="http://dx.doi.org/10.1109/TPAMI.2004.75">DOI: 10.1109/TPAMI.2004.75</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="boost-subgraph-iso" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[boost-subgraph-iso]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/vf2_sub_graph_iso.html">http://www.boost.org/libs/graph/doc/vf2_sub_graph_iso.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="subgraph-isormophism-wikipedia" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[subgraph-isormophism-wikipedia]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Subgraph_isomorphism_problem">http://en.wikipedia.org/wiki/Subgraph_isomorphism_problem</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">poisson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">complete_graph</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sub</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">complete_graph</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vm</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">subgraph_isomorphism</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">max_n</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vm</span><span class="p">))</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vm</span><span class="p">)):</span>
+<span class="gp">... </span>  <span class="n">g</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="n">vmask</span><span class="p">,</span> <span class="n">emask</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">mark_subgraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="n">vm</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="gp">... </span>  <span class="n">g</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="n">vmask</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="n">emask</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">assert</span> <span class="n">gt</span><span class="o">.</span><span class="n">isomorphism</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">sub</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ewidth</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">copy_property</span><span class="p">(</span><span class="n">emask</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="s">&quot;double&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ewidth</span><span class="o">.</span><span class="n">a</span> <span class="o">+=</span> <span class="mf">0.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ewidth</span><span class="o">.</span><span class="n">a</span> <span class="o">*=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vertex_fill_color</span><span class="o">=</span><span class="n">vmask</span><span class="p">,</span> <span class="n">edge_color</span><span class="o">=</span><span class="n">emask</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">edge_pen_width</span><span class="o">=</span><span class="n">ewidth</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+<span class="gp">... </span>              <span class="n">output</span><span class="o">=</span><span class="s">&quot;subgraph-iso-embed.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;subgraph-iso.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<img alt="_images/subgraph-iso.png" src="_images/subgraph-iso.png" />
+<img alt="_images/subgraph-iso-embed.png" src="_images/subgraph-iso-embed.png" />
+<p><strong>Left:</strong> Subgraph searched, <strong>Right:</strong> One isomorphic subgraph found in main graph.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.mark_subgraph">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">mark_subgraph</code><span class="sig-paren">(</span><em>g</em>, <em>sub</em>, <em>vmap</em>, <em>vmask=None</em>, <em>emask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#mark_subgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.mark_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark a given subgraph <cite>sub</cite> on the graph <cite>g</cite>.</p>
+<p>The mapping must be provided by the <cite>vmap</cite> and <cite>emap</cite> parameters,
+which map vertices/edges of <cite>sub</cite> to indexes of the corresponding
+vertices/edges in <cite>g</cite>.</p>
+<p>This returns a vertex and an edge property map, with value type &#8216;bool&#8217;,
+indicating whether or not a vertex/edge in <cite>g</cite> corresponds to the subgraph
+<cite>sub</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.min_spanning_tree">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">min_spanning_tree</code><span class="sig-paren">(</span><em>g</em>, <em>weights=None</em>, <em>root=None</em>, <em>tree_map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#min_spanning_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.min_spanning_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum spanning tree of a given graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>weights</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>The edge weights. If provided, the minimum spanning tree will minimize
+the edge weights.</p>
+</div></blockquote>
+<p><strong>root</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>Root of the minimum spanning tree. If this is provided, Prim&#8217;s algorithm
+is used. Otherwise, Kruskal&#8217;s algorithm is used.</p>
+</div></blockquote>
+<p><strong>tree_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>If provided, the edge tree map will be written in this property map.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tree_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Edge property map with mark the tree edges: 1 for tree edge, 0
+otherwise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The algorithm runs with <span class="math">\(O(E\log E)\)</span> complexity, or <span class="math">\(O(E\log V)\)</span>
+if <cite>root</cite> is specified.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="kruskal-shortest-1956" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[kruskal-shortest-1956]</a></td><td>J. B. Kruskal.  &#8220;On the shortest spanning subtree
+of a graph and the traveling salesman problem&#8221;,  In Proceedings of the
+American Mathematical Society, volume 7, pages 48-50, 1956.
+<a class="reference external" href="http://dx.doi.org/10.1090/S0002-9939-1956-0078686-7">DOI: 10.1090/S0002-9939-1956-0078686-7</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="prim-shortest-1957" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[prim-shortest-1957]</a></td><td>R. Prim.  &#8220;Shortest connection networks and some
+generalizations&#8221;,  Bell System Technical Journal, 36:1389-1401, 1957.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="boost-mst" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id9">[boost-mst]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/graph_theory_review.html#sec:minimum-spanning-tree">http://www.boost.org/libs/graph/doc/graph_theory_review.html#sec:minimum-spanning-tree</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="mst-wiki" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id10">[mst-wiki]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Minimum_spanning_tree">http://en.wikipedia.org/wiki/Minimum_spanning_tree</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">triangulation</span><span class="p">(</span><span class="n">random</span><span class="p">((</span><span class="mi">400</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;delaunay&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weight</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;double&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+<span class="gp">... </span>   <span class="n">weight</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">()]</span><span class="o">.</span><span class="n">a</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">()]</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">min_spanning_tree</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;triang_orig.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;triang_min_span_tree.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/triang_orig.png"><img alt="_images/triang_orig.png" src="_images/triang_orig.png" style="width: 400px;" /></a>
+<a class="reference internal image-reference" href="_images/triang_min_span_tree.png"><img alt="_images/triang_min_span_tree.png" src="_images/triang_min_span_tree.png" style="width: 400px;" /></a>
+<p><em>Left:</em> Original graph, <em>Right:</em> The minimum spanning tree.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.random_spanning_tree">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">random_spanning_tree</code><span class="sig-paren">(</span><em>g</em>, <em>weights=None</em>, <em>root=None</em>, <em>tree_map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#random_spanning_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.random_spanning_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a random spanning tree of a given graph, which can be directed or
+undirected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>weights</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>The edge weights. If provided, the probability of a particular spanning
+tree being selected is the product of its edge weights.</p>
+</div></blockquote>
+<p><strong>root</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>Root of the spanning tree. If not provided, it will be selected randomly.</p>
+</div></blockquote>
+<p><strong>tree_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>If provided, the edge tree map will be written in this property map.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tree_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Edge property map with mark the tree edges: 1 for tree edge, 0
+otherwise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The typical running time for random graphs is <span class="math">\(O(N\log N)\)</span>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="wilson-generating-1996" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id11">[wilson-generating-1996]</a></td><td>David Bruce Wilson, &#8220;Generating random spanning
+trees more quickly than the cover time&#8221;, Proceedings of the twenty-eighth
+annual ACM symposium on Theory of computing, Pages 296-303, ACM New York,
+1996, <a class="reference external" href="http://dx.doi.org/10.1145/237814.237880">DOI: 10.1145/237814.237880</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="boost-rst" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id12">[boost-rst]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/random_spanning_tree.html">http://www.boost.org/libs/graph/doc/random_spanning_tree.html</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">triangulation</span><span class="p">(</span><span class="n">random</span><span class="p">((</span><span class="mi">400</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;delaunay&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weight</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;double&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+<span class="gp">... </span>   <span class="n">weight</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">()]</span><span class="o">.</span><span class="n">a</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">()]</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_spanning_tree</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;rtriang_orig.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;triang_random_span_tree.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/rtriang_orig.png"><img alt="_images/rtriang_orig.png" src="_images/rtriang_orig.png" style="width: 400px;" /></a>
+<a class="reference internal image-reference" href="_images/triang_random_span_tree.png"><img alt="_images/triang_random_span_tree.png" src="_images/triang_random_span_tree.png" style="width: 400px;" /></a>
+<p><em>Left:</em> Original graph, <em>Right:</em> A random spanning tree.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.dominator_tree">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">dominator_tree</code><span class="sig-paren">(</span><em>g</em>, <em>root</em>, <em>dom_map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#dominator_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.dominator_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a vertex property map the dominator vertices for each vertex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>root</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a></p>
+<blockquote>
+<div><p>The root vertex.</p>
+</div></blockquote>
+<p><strong>dom_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>If provided, the dominator map will be written in this property map.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dom_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>The dominator map. It contains for each vertex, the index of its
+dominator vertex.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>A vertex u dominates a vertex v, if every path of directed graph from the
+entry to v must go through u.</p>
+<p>The algorithm runs with <span class="math">\(O((V+E)\log (V+E))\)</span> complexity.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="dominator-bgl" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id13">[dominator-bgl]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/lengauer_tarjan_dominator.htm">http://www.boost.org/libs/graph/doc/lengauer_tarjan_dominator.htm</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">min_spanning_tree</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">root</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vertices</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">in_degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dom</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">dominator_tree</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dom</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.topological_sort">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">topological_sort</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#topological_sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.topological_sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the topological sort of the given graph. It is returned as an array
+of vertex indexes, in the sort order.</p>
+<p class="rubric">Notes</p>
+<p>The topological sort algorithm creates a linear ordering of the vertices
+such that if edge (u,v) appears in the graph, then u comes before v in the
+ordering. The graph must be a directed acyclic graph (DAG).</p>
+<p>The time complexity is <span class="math">\(O(V + E)\)</span>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="topological-boost" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id14">[topological-boost]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/topological_sort.html">http://www.boost.org/libs/graph/doc/topological_sort.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="topological-wiki" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id15">[topological-wiki]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Topological_sorting">http://en.wikipedia.org/wiki/Topological_sorting</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">min_spanning_tree</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sort</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">topological_sort</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">sort</span><span class="p">)</span>
+<span class="go">[29 28 27 26 23 24 22 21 20 18 17 16 15 14 11 10  9  6  5  4 19 12 13  3  2</span>
+<span class="go"> 25  1  0  7  8]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.transitive_closure">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">transitive_closure</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#transitive_closure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.transitive_closure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the transitive closure graph of g.</p>
+<p class="rubric">Notes</p>
+<p>The transitive closure of a graph G = (V,E) is a graph G* = (V,E*) such that
+E* contains an edge (u,v) if and only if G contains a path (of at least one
+edge) from u to v. The transitive_closure() function transforms the input
+graph g into the transitive closure graph tc.</p>
+<p>The time complexity (worst-case) is <span class="math">\(O(VE)\)</span>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="transitive-boost" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id16">[transitive-boost]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/transitive_closure.html">http://www.boost.org/libs/graph/doc/transitive_closure.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="transitive-wiki" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id17">[transitive-wiki]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Transitive_closure">http://en.wikipedia.org/wiki/Transitive_closure</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tc</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">transitive_closure</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.label_components">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">label_components</code><span class="sig-paren">(</span><em>g</em>, <em>vprop=None</em>, <em>directed=None</em>, <em>attractors=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#label_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.label_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label the components to which each vertex in the graph belongs. If the
+graph is directed, it finds the strongly connected components.</p>
+<p>A property map with the component labels is returned, together with an
+histogram of component labels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>vprop</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <code class="docutils literal"><span class="pre">None</span></code>)</p>
+<blockquote>
+<div><p>Vertex property to store the component labels. If none is supplied, one
+is created.</p>
+</div></blockquote>
+<p><strong>directed</strong> : bool (optional, default: <code class="docutils literal"><span class="pre">None</span></code>)</p>
+<blockquote>
+<div><p>Treat graph as directed or not, independently of its actual
+directionality.</p>
+</div></blockquote>
+<p><strong>attractors</strong> : bool (optional, default: <code class="docutils literal"><span class="pre">False</span></code>)</p>
+<blockquote>
+<div><p>If <code class="docutils literal"><span class="pre">True</span></code>, and the graph is directed, an additional array with Boolean
+values is returned, specifying if the strongly connected components are
+attractors or not.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>comp</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote>
+<div><p>Vertex property map with component labels.</p>
+</div></blockquote>
+<p><strong>hist</strong> : <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.9)"><code class="xref py py-class docutils literal"><span class="pre">ndarray</span></code></a></p>
+<blockquote>
+<div><p>Histogram of component labels.</p>
+</div></blockquote>
+<p><strong>is_attractor</strong> : <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.9)"><code class="xref py py-class docutils literal"><span class="pre">ndarray</span></code></a></p>
+<blockquote class="last">
+<div><p>A Boolean array specifying if the strongly connected components are
+attractors or not. This returned only if <code class="docutils literal"><span class="pre">attractors</span> <span class="pre">==</span> <span class="pre">True</span></code>, and the
+graph is directed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The components are arbitrarily labeled from 0 to N-1, where N is the total
+number of components.</p>
+<p>The algorithm runs in <span class="math">\(O(V + E)\)</span> time.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">poisson</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="p">,</span> <span class="n">hist</span><span class="p">,</span> <span class="n">is_attractor</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">label_components</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">attractors</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[13 13 13 13 14 12 13 15 16 13 17 19 13 13 13 20 13 13 13 10 13 13 22 13 13</span>
+<span class="go">  4 13 13  2 23 13 13 24 13 13 26 27 13 13 13 13  0 13 13  3 13 13 13 28  1</span>
+<span class="go">  6 13 13 13 13  5 13 13 13 13 13 13 13  9 13 11 13 29 13 13 13 13 18 13 30</span>
+<span class="go"> 31 13 13 32 13 33 34 35 13 13 21 13 25  8 36 13 13 13 13 13 37 13 13  7 13]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+<span class="go">[ 1  1  1  1  1  1  1  1  1  1  1  1  1 63  1  1  1  1  1  1  1  1  1  1  1</span>
+<span class="go">  1  1  1  1  1  1  1  1  1  1  1  1  1]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">is_attractor</span><span class="p">)</span>
+<span class="go">[ True False  True  True  True False False  True False  True  True  True</span>
+<span class="go">  True False  True False False False False False False False False False</span>
+<span class="go"> False False False False False False False False False  True False  True</span>
+<span class="go"> False False]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.label_largest_component">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">label_largest_component</code><span class="sig-paren">(</span><em>g</em>, <em>directed=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#label_largest_component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.label_largest_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label the largest component in the graph. If the graph is directed, then the
+largest strongly connected component is labelled.</p>
+<p>A property map with a boolean label is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>directed</strong> : bool (optional, default:None)</p>
+<blockquote>
+<div><p>Treat graph as directed or not, independently of its actual
+directionality.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>comp</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Boolean vertex property map which labels the largest component.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The algorithm runs in <span class="math">\(O(V + E)\)</span> time.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">label_largest_component</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 1 0 0 0 0 0 0 0</span>
+<span class="go"> 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0</span>
+<span class="go"> 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 1 1 0 0 0 0 1 0 0 1 0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vfilt</span><span class="o">=</span><span class="n">l</span><span class="p">)</span>   <span class="c"># extract the largest component as a graph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span>
+<span class="go">18</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.label_out_component">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">label_out_component</code><span class="sig-paren">(</span><em>g</em>, <em>root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#label_out_component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.label_out_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label the out-component (or simply the component for undirected graphs) of a
+root vertex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>root</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a></p>
+<blockquote>
+<div><p>The root vertex.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>comp</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Boolean vertex property map which labels the out-component.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The algorithm runs in <span class="math">\(O(V + E)\)</span> time.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">poisson</span><span class="p">(</span><span class="mf">2.2</span><span class="p">),</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">label_out_component</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[1 1 1 1 1 1 1 0 1 1 1 0 1 1 0 1 1 1 0 1 1 0 1 1 1 1 1 1 1 1 0 0 0 1 1 1 1</span>
+<span class="go"> 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 0 0</span>
+<span class="go"> 1 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0 1 1 1 0]</span>
+</pre></div>
+</div>
+<p>The in-component can be obtained by reversing the graph.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">label_out_component</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="nb">reversed</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+<span class="gp">... </span>                           <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[0 1 1 1 1 0 1 0 0 0 0 0 0 0 0 0 1 1 0 0 1 0 0 1 1 0 0 0 1 1 0 0 0 0 1 0 1</span>
+<span class="go"> 1 0 0 0 0 0 0 0 1 0 0 0 1 0 1 0 1 0 1 1 1 1 0 0 0 1 1 0 0 0 0 0 0 0 1 0 0</span>
+<span class="go"> 1 0 0 0 0 1 1 1 0 0 1 1 0 0 0 1 1 0 1 1 0 0 1 0 1 0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.label_biconnected_components">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">label_biconnected_components</code><span class="sig-paren">(</span><em>g</em>, <em>eprop=None</em>, <em>vprop=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#label_biconnected_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.label_biconnected_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label the edges of biconnected components, and the vertices which are
+articulation points.</p>
+<p>An edge property map with the component labels is returned, together a
+boolean vertex map marking the articulation points, and an histogram of
+component labels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>eprop</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Edge property to label the biconnected components.</p>
+</div></blockquote>
+<p><strong>vprop</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Vertex property to mark the articulation points. If none is supplied,
+one is created.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>bicomp</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote>
+<div><p>Edge property map with the biconnected component labels.</p>
+</div></blockquote>
+<p><strong>articulation</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote>
+<div><p>Boolean vertex property map which has value 1 for each vertex which is
+an articulation point, and zero otherwise.</p>
+</div></blockquote>
+<p><strong>nc</strong> : int</p>
+<blockquote class="last">
+<div><p>Number of biconnected components.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>A connected graph is biconnected if the removal of any single vertex (and
+all edges incident on that vertex) can not disconnect the graph. More
+generally, the biconnected components of a graph are the maximal subsets of
+vertices such that the removal of a vertex from a particular component will
+not disconnect the component. Unlike connected components, vertices may
+belong to multiple biconnected components: those vertices that belong to
+more than one biconnected component are called &#8220;articulation points&#8221; or,
+equivalently, &#8220;cut vertices&#8221;. Articulation points are vertices whose removal
+would increase the number of connected components in the graph. Thus, a
+graph without articulation points is biconnected. Vertices can be present in
+multiple biconnected components, but each edge can only be contained in a
+single biconnected component.</p>
+<p>The algorithm runs in <span class="math">\(O(V + E)\)</span> time.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="p">,</span> <span class="n">art</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">label_biconnected_components</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[31 42 41 41 41 21  2 41 41 19 41 33 41 41 12 41 40 41 41 41 41 41 41  8 41</span>
+<span class="go"> 10 41 32 28 30 41 41 41  5 41 41 41 41 39 38 41 41 41 41 45 44 41 41 22 41</span>
+<span class="go"> 41 41  0 41 41 41 41 41 41 41 41  7 13 41 20 41 41 41 41 34  9 41 41  4 43</span>
+<span class="go"> 18 41 41 15 29  1 41 41 41 41  6 41 25 23 35 16 24 37 11  3 36 17 26 27 14</span>
+<span class="go"> 41]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">art</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[1 0 1 1 0 1 0 0 0 1 0 0 1 0 0 1 0 1 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 1 1 0 0</span>
+<span class="go"> 1 1 0 0 1 0 0 0 1 1 0 0 0 1 0 1 0 1 0 0 1 0 0 0 0 1 1 0 1 0 0 0 0 0 0 1 1</span>
+<span class="go"> 1 0 0 0 0 0 0 1 1 0 0 0 1 0 1 1 0 0 0 1 0 0 0 1 0 0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+<span class="go">[ 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1</span>
+<span class="go">  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1 56  1  1  1  1]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.kcore_decomposition">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">kcore_decomposition</code><span class="sig-paren">(</span><em>g</em>, <em>deg='out'</em>, <em>vprop=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#kcore_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.kcore_decomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a k-core decomposition of the given graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>deg</strong> : string</p>
+<blockquote>
+<div><p>Degree to be used for the decomposition. It can be either &#8220;in&#8221;, &#8220;out&#8221; or
+&#8220;total&#8221;, for in-, out-, or total degree of the vertices.</p>
+</div></blockquote>
+<p><strong>vprop</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <code class="docutils literal"><span class="pre">None</span></code>)</p>
+<blockquote>
+<div><p>Vertex property to store the decomposition. If <code class="docutils literal"><span class="pre">None</span></code> is supplied,
+one is created.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>kval</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Vertex property map with the k-core decomposition, i.e. a given vertex v
+belongs to the <code class="docutils literal"><span class="pre">kval[v]</span></code>-core.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The k-core is a maximal set of vertices such that its induced subgraph only
+contains vertices with degree larger than or equal to k.</p>
+<p>This algorithm is described in <a class="reference internal" href="#batagelk-algorithm" id="id18">[batagelk-algorithm]</a> and runs in <span class="math">\(O(V + E)\)</span>
+time.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="k-core" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id19">[k-core]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Degeneracy_%28graph_theory%29">http://en.wikipedia.org/wiki/Degeneracy_%28graph_theory%29</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="batagelk-algorithm" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[batagelk-algorithm]</td><td><em>(<a class="fn-backref" href="#id18">1</a>, <a class="fn-backref" href="#id20">2</a>)</em> Vladimir Batagelj, Matjaž Zaveršnik, &#8220;Fast
+algorithms for determining (generalized) core groups in social
+networks&#8221;, Advances in Data Analysis and Classification
+Volume 5, Issue 2, pp 129-145 (2011), <a class="reference external" href="http://dx.doi.org/10.1007/s11634-010-0079-y">DOI: 10.1007/s11634-010-0079-y</a>,
+<a class="reference external" href="http://arxiv.org/abs/cs/0310049">arXiv: cs/0310049</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;netscience&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vfilt</span><span class="o">=</span><span class="n">gt</span><span class="o">.</span><span class="n">label_largest_component</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kcore</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">kcore_decomposition</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;pos&quot;</span><span class="p">],</span> <span class="n">vertex_fill_color</span><span class="o">=</span><span class="n">kcore</span><span class="p">,</span> <span class="n">vertex_text</span><span class="o">=</span><span class="n">kcore</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;netsci-kcore.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id62">
+<img alt="_images/netsci-kcore.png" src="_images/netsci-kcore.png" />
+<p class="caption"><span class="caption-text">K-core decomposition of a network of network scientists.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.shortest_distance">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">shortest_distance</code><span class="sig-paren">(</span><em>g</em>, <em>source=None</em>, <em>target=None</em>, <em>weights=None</em>, <em>max_dist=None</em>, <em>directed=None</em>, <em>dense=False</em>, <em>dist_map=None</em>, <em>pred_map=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#shortest_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.shortest_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the distance from a source to a target vertex, or to of all
+vertices from a given source, or the all pairs shortest paths, if the source
+is not specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>source</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Source vertex of the search. If unspecified, the all pairs shortest
+distances are computed.</p>
+</div></blockquote>
+<p><strong>target</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a> or iterable of such objects (optional, default: None)</p>
+<blockquote>
+<div><p>Target vertex (or vertices) of the search. If unspecified, the distance
+to all vertices from the source will be computed.</p>
+</div></blockquote>
+<p><strong>weights</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>The edge weights. If provided, the minimum spanning tree will minimize
+the edge weights.</p>
+</div></blockquote>
+<p><strong>max_dist</strong> : scalar value (optional, default: None)</p>
+<blockquote>
+<div><p>If specified, this limits the maximum distance of the vertices
+searched. This parameter has no effect if source is None.</p>
+</div></blockquote>
+<p><strong>directed</strong> : bool (optional, default:None)</p>
+<blockquote>
+<div><p>Treat graph as directed or not, independently of its actual
+directionality.</p>
+</div></blockquote>
+<p><strong>dense</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>If true, and source is None, the Floyd-Warshall algorithm is used,
+otherwise the Johnson algorithm is used. If source is not None, this option
+has no effect.</p>
+</div></blockquote>
+<p><strong>dist_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Vertex property to store the distances. If none is supplied, one
+is created.</p>
+</div></blockquote>
+<p><strong>pred_map</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>If true, a vertex property map with the predecessors is returned.
+Ignored if source=None.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dist_map</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Vertex property map with the distances from source. If source is &#8216;None&#8217;,
+it will have a vector value type, with the distances to every vertex.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If a source is given, the distances are calculated with a breadth-first
+search (BFS) or Dijkstra&#8217;s algorithm <a class="reference internal" href="#id33" id="id21">[dijkstra]</a>, if weights are given. If
+source is not given, the distances are calculated with Johnson&#8217;s algorithm
+<a class="reference internal" href="#johnson-apsp" id="id22">[johnson-apsp]</a>. If dense=True, the Floyd-Warshall algorithm
+<a class="reference internal" href="#floyd-warshall-apsp" id="id23">[floyd-warshall-apsp]</a> is used instead.</p>
+<p>If source is specified, the algorithm runs in <span class="math">\(O(V + E)\)</span> time, or
+<span class="math">\(O(V \log V)\)</span> if weights are given. If source is not specified, it
+runs in <span class="math">\(O(VE\log V)\)</span> time, or <span class="math">\(O(V^3)\)</span> if dense == True.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="bfs" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[bfs]</td><td>Edward Moore, &#8220;The shortest path through a maze&#8221;, International
+Symposium on the Theory of Switching (1959), Harvard University Press.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="bfs-boost" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[bfs-boost]</td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/breadth_first_search.html">http://www.boost.org/libs/graph/doc/breadth_first_search.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="dijkstra" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[dijkstra]</td><td>E. Dijkstra, &#8220;A note on two problems in connexion with
+graphs.&#8221; Numerische Mathematik, 1:269-271, 1959.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="dijkstra-boost" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[dijkstra-boost]</td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/dijkstra_shortest_paths.html">http://www.boost.org/libs/graph/doc/dijkstra_shortest_paths.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="johnson-apsp" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[johnson-apsp]</td><td><em>(<a class="fn-backref" href="#id22">1</a>, <a class="fn-backref" href="#id28">2</a>)</em> <a class="reference external" href="http://www.boost.org/libs/graph/doc/johnson_all_pairs_shortest.html">http://www.boost.org/libs/graph/doc/johnson_all_pairs_shortest.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="floyd-warshall-apsp" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[floyd-warshall-apsp]</td><td><em>(<a class="fn-backref" href="#id23">1</a>, <a class="fn-backref" href="#id29">2</a>)</em> <a class="reference external" href="http://www.boost.org/libs/graph/doc/floyd_warshall_shortest.html">http://www.boost.org/libs/graph/doc/floyd_warshall_shortest.html</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">poisson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">poisson</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">shortest_distance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[         0          1          5          4 2147483647          4</span>
+<span class="go">          9          5          8          5          7          6</span>
+<span class="go">          3          5          6          8          3          3</span>
+<span class="go">          5          6 2147483647          1          4          5</span>
+<span class="go">          5          2          5          7          4          5</span>
+<span class="go">          5          5          4          4          5          2</span>
+<span class="go">          5 2147483647          5          2 2147483647          6</span>
+<span class="go">          5          6          6          2          5          4</span>
+<span class="go">          3          6          5          4          4          5</span>
+<span class="go">          3          3          5          5          1          5</span>
+<span class="go">          4          6          3          4          3          3</span>
+<span class="go">          7          5          5          4 2147483647 2147483647</span>
+<span class="go">          2          5          3          5          5          6</span>
+<span class="go">          3          5          6          6          5          4</span>
+<span class="go">          5          3          6          3          4 2147483647</span>
+<span class="go">          4          6          4          4          4          4</span>
+<span class="go">          6          5          4          4]</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">shortest_distance</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dist</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[         0          1          5          4 2147483647          4</span>
+<span class="go">          9          5          8          5          7          6</span>
+<span class="go">          3          5          6          8          3          3</span>
+<span class="go">          5          6 2147483647          1          4          5</span>
+<span class="go">          5          2          5          7          4          5</span>
+<span class="go">          5          5          4          4          5          2</span>
+<span class="go">          5 2147483647          5          2 2147483647          6</span>
+<span class="go">          5          6          6          2          5          4</span>
+<span class="go">          3          6          5          4          4          5</span>
+<span class="go">          3          3          5          5          1          5</span>
+<span class="go">          4          6          3          4          3          3</span>
+<span class="go">          7          5          5          4 2147483647 2147483647</span>
+<span class="go">          2          5          3          5          5          6</span>
+<span class="go">          3          5          6          6          5          4</span>
+<span class="go">          5          3          6          3          4 2147483647</span>
+<span class="go">          4          6          4          4          4          4</span>
+<span class="go">          6          5          4          4]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">shortest_distance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">target</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+<span class="go">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">shortest_distance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">target</span><span class="o">=</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">6</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+<span class="go">[5 9]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.shortest_path">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">shortest_path</code><span class="sig-paren">(</span><em>g</em>, <em>source</em>, <em>target</em>, <em>weights=None</em>, <em>pred_map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#shortest_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.shortest_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the shortest path from <cite>source</cite> to <cite>target</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>source</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a></p>
+<blockquote>
+<div><p>Source vertex of the search.</p>
+</div></blockquote>
+<p><strong>target</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a></p>
+<blockquote>
+<div><p>Target vertex of the search.</p>
+</div></blockquote>
+<p><strong>weights</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>The edge weights.</p>
+</div></blockquote>
+<p><strong>pred_map</strong> :  <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Vertex property map with the predecessors in the search tree. If this is
+provided, the shortest paths are not computed, and are obtained directly
+from this map.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>vertex_list</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a></p>
+<blockquote>
+<div><p>List of vertices from <cite>source</cite> to <cite>target</cite> in the shortest path.</p>
+</div></blockquote>
+<p><strong>edge_list</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.Edge" title="graph_tool.Edge"><code class="xref py py-class docutils literal"><span class="pre">Edge</span></code></a></p>
+<blockquote class="last">
+<div><p>List of edges from <cite>source</cite> to <cite>target</cite> in the shortest path.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The paths are computed with a breadth-first search (BFS) or Dijkstra&#8217;s
+algorithm <a class="reference internal" href="#id33" id="id30">[dijkstra]</a>, if weights are given.</p>
+<p>The algorithm runs in <span class="math">\(O(V + E)\)</span> time, or <span class="math">\(O(V \log V)\)</span> if
+weights are given.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="id31" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[bfs]</td><td>Edward Moore, &#8220;The shortest path through a maze&#8221;, International
+Symposium on the Theory of Switching (1959), Harvard University
+Press</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="id32" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[bfs-boost]</td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/breadth_first_search.html">http://www.boost.org/libs/graph/doc/breadth_first_search.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="id33" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[dijkstra]</td><td>E. Dijkstra, &#8220;A note on two problems in connexion with
+graphs.&#8221; Numerische Mathematik, 1:269-271, 1959.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="id34" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[dijkstra-boost]</td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/dijkstra_shortest_paths.html">http://www.boost.org/libs/graph/doc/dijkstra_shortest_paths.html</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">poisson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">poisson</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">4</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vlist</span><span class="p">,</span> <span class="n">elist</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">shortest_path</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">11</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vlist</span><span class="p">])</span>
+<span class="go">[&#39;10&#39;, &#39;11&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elist</span><span class="p">])</span>
+<span class="go">[&#39;(10, 11)&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.pseudo_diameter">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">pseudo_diameter</code><span class="sig-paren">(</span><em>g</em>, <em>source=None</em>, <em>weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#pseudo_diameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.pseudo_diameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the pseudo-diameter of the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>source</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>Source vertex of the search. If not supplied, the first vertex
+in the graph will be chosen.</p>
+</div></blockquote>
+<p><strong>weights</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>The edge weights.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pseudo_diameter</strong> : int</p>
+<blockquote>
+<div><p>The pseudo-diameter of the graph.</p>
+</div></blockquote>
+<p><strong>end_points</strong> : pair of <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a></p>
+<blockquote class="last">
+<div><p>The two vertices which correspond to the pseudo-diameter found.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The pseudo-diameter is an approximate graph diameter. It is obtained by
+starting from a vertex <cite>source</cite>, and finds a vertex <cite>target</cite> that is
+farthest away from <cite>source</cite>. This process is repeated by treating
+<cite>target</cite> as the new starting vertex, and ends when the graph distance no
+longer increases. A vertex from the last level set that has the smallest
+degree is chosen as the final starting vertex u, and a traversal is done
+to see if the graph distance can be increased. This graph distance is
+taken to be the pseudo-diameter.</p>
+<p>The paths are computed with a breadth-first search (BFS) or Dijkstra&#8217;s
+algorithm <a class="reference internal" href="#id33" id="id39">[dijkstra]</a>, if weights are given.</p>
+<p>The algorithm runs in <span class="math">\(O(V + E)\)</span> time, or <span class="math">\(O(V \log V)\)</span> if
+weights are given.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="pseudo-diameter" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id40">[pseudo-diameter]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Distance_%28graph_theory%29">http://en.wikipedia.org/wiki/Distance_%28graph_theory%29</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">poisson</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="n">poisson</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">poisson</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span><span class="p">,</span> <span class="n">ends</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">pseudo_diameter</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+<span class="go">10.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ends</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ends</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="go">0 165</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.is_bipartite">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">is_bipartite</code><span class="sig-paren">(</span><em>g</em>, <em>partition=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#is_bipartite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.is_bipartite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if the graph is bipartite.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>partition</strong> : bool (optional, default: <code class="docutils literal"><span class="pre">False</span></code>)</p>
+<blockquote>
+<div><p>If <code class="docutils literal"><span class="pre">True</span></code>, return the two partitions in case the graph is bipartite.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>is_bipartite</strong> : bool</p>
+<blockquote>
+<div><p>Whether or not the graph is bipartite.</p>
+</div></blockquote>
+<p><strong>partition</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (only if <cite>partition=True</cite>)</p>
+<blockquote class="last">
+<div><p>A vertex property map with the graph partitioning (or <cite>None</cite>) if the
+graph is not bipartite.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>An undirected graph is bipartite if one can partition its set of vertices
+into two sets, such that all edges go from one set to the other.</p>
+<p>This algorithm runs in <span class="math">\(O(V + E)\)</span> time.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="boost-bipartite" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id41">[boost-bipartite]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/is_bipartite.html">http://www.boost.org/libs/graph/doc/is_bipartite.html</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">lattice</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_bi</span><span class="p">,</span> <span class="n">part</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">is_bipartite</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">partition</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">is_bi</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vertex_fill_color</span><span class="o">=</span><span class="n">part</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;bipartite.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id63">
+<img alt="_images/bipartite.png" src="_images/bipartite.png" />
+<p class="caption"><span class="caption-text">Bipartition of a 2D lattice.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.is_planar">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">is_planar</code><span class="sig-paren">(</span><em>g</em>, <em>embedding=False</em>, <em>kuratowski=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#is_planar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.is_planar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if the graph is planar.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>embedding</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>If true, return a mapping from vertices to the clockwise order of
+out-edges in the planar embedding.</p>
+</div></blockquote>
+<p><strong>kuratowski</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>If true, the minimal set of edges that form the obstructing Kuratowski
+subgraph will be returned as a property map, if the graph is not planar.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>is_planar</strong> : bool</p>
+<blockquote>
+<div><p>Whether or not the graph is planar.</p>
+</div></blockquote>
+<p><strong>embedding</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (only if <cite>embedding=True</cite>)</p>
+<blockquote>
+<div><p>A vertex property map with the out-edges indexes in clockwise order in
+the planar embedding,</p>
+</div></blockquote>
+<p><strong>kuratowski</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (only if <cite>kuratowski=True</cite>)</p>
+<blockquote class="last">
+<div><p>An edge property map with the minimal set of edges that form the
+obstructing Kuratowski subgraph (if the value of kuratowski[e] is 1,
+the edge belongs to the set)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>A graph is planar if it can be drawn in two-dimensional space without any of
+its edges crossing. This algorithm performs the Boyer-Myrvold planarity
+testing <a class="reference internal" href="#boyer-myrvold" id="id42">[boyer-myrvold]</a>. See <a class="reference internal" href="#id46" id="id43">[boost-planarity]</a> for more details.</p>
+<p>This algorithm runs in <span class="math">\(O(V)\)</span> time.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="boyer-myrvold" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[boyer-myrvold]</td><td><em>(<a class="fn-backref" href="#id42">1</a>, <a class="fn-backref" href="#id44">2</a>)</em> John M. Boyer and Wendy J. Myrvold, &#8220;On the Cutting Edge:
+Simplified O(n) Planarity by Edge Addition&#8221; Journal of Graph Algorithms
+and Applications, 8(2): 241-273, 2004. <a class="reference external" href="http://www.emis.ams.org/journals/JGAA/accepted/2004/BoyerMyrvold2004.8.3.pdf">http://www.emis.ams.org/journals/JGAA/accepted/2004/BoyerMyrvold2004.8.3.pdf</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="boost-planarity" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[boost-planarity]</td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/boyer_myrvold.html">http://www.boost.org/libs/graph/doc/boyer_myrvold.html</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">triangulation</span><span class="p">(</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span><span class="mi">2</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="p">,</span> <span class="n">embed_order</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">is_planar</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">embed_order</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">)]))</span>
+<span class="go">[0, 1, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="p">,</span> <span class="n">kur</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">is_planar</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">kuratowski</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="n">kur</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;kuratowski.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id64">
+<img alt="_images/kuratowski.png" src="_images/kuratowski.png" />
+<p class="caption"><span class="caption-text">Obstructing Kuratowski subgraph of a random graph.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.make_maximal_planar">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">make_maximal_planar</code><span class="sig-paren">(</span><em>g</em>, <em>unfilter=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#make_maximal_planar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.make_maximal_planar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add edges to the graph to make it maximally planar.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote class="last">
+<div><p>Graph to be used. It must be a biconnected planar graph with at least 3
+vertices.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>A graph is maximal planar if no additional edges can be added to it without
+creating a non-planar graph. By Euler&#8217;s formula, a maximal planar graph with
+V &gt; 2 vertices always has 3V - 6 edges and 2V - 4 faces.</p>
+<p>The input graph to make_maximal_planar() must be a biconnected planar graph
+with at least 3 vertices.</p>
+<p>This algorithm runs in <span class="math">\(O(V + E)\)</span> time.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="id46" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[boost-planarity]</td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/make_maximal_planar.html">http://www.boost.org/libs/graph/doc/make_maximal_planar.html</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">lattice</span><span class="p">([</span><span class="mi">42</span><span class="p">,</span> <span class="mi">42</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">make_maximal_planar</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">is_planar</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">(),</span> <span class="n">g</span><span class="o">.</span><span class="n">num_edges</span><span class="p">())</span>
+<span class="go">1764 5286</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;maximal_planar.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id65">
+<img alt="_images/maximal_planar.png" src="_images/maximal_planar.png" />
+<p class="caption"><span class="caption-text">A maximally planar graph.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.is_DAG">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">is_DAG</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#is_DAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.is_DAG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>True</cite> if the graph is a directed acyclic graph (DAG).</p>
+<p class="rubric">Notes</p>
+<p>The time complexity is <span class="math">\(O(V + E)\)</span>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="dag-wiki" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id48">[DAG-wiki]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Directed_acyclic_graph">http://en.wikipedia.org/wiki/Directed_acyclic_graph</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">is_DAG</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tree</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">min_spanning_tree</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">is_DAG</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.max_cardinality_matching">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">max_cardinality_matching</code><span class="sig-paren">(</span><em>g</em>, <em>heuristic=False</em>, <em>weight=None</em>, <em>minimize=True</em>, <em>match=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#max_cardinality_matching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.max_cardinality_matching" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a maximum cardinality matching in the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>heuristic</strong> : bool (optional, default: <cite>False</cite>)</p>
+<blockquote>
+<div><p>If true, a random heuristic will be used, which runs in linear time.</p>
+</div></blockquote>
+<p><strong>weight</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>If provided, the matching will minimize the edge weights (or maximize
+if <code class="docutils literal"><span class="pre">minimize</span> <span class="pre">==</span> <span class="pre">False</span></code>). This option has no effect if
+<code class="docutils literal"><span class="pre">heuristic</span> <span class="pre">==</span> <span class="pre">False</span></code>.</p>
+</div></blockquote>
+<p><strong>minimize</strong> : bool (optional, default: <cite>True</cite>)</p>
+<blockquote>
+<div><p>If <cite>True</cite>, the matching will minimize the weights, otherwise they will
+be maximized. This option has no effect if <code class="docutils literal"><span class="pre">heuristic</span> <span class="pre">==</span> <span class="pre">False</span></code>.</p>
+</div></blockquote>
+<p><strong>match</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>Edge property map where the matching will be specified.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>match</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Boolean edge property map where the matching is specified.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>A <em>matching</em> is a subset of the edges of a graph such that no two edges
+share a common vertex. A <em>maximum cardinality matching</em> has maximum size
+over all matchings in the graph.</p>
+<p>If the parameter <code class="docutils literal"><span class="pre">weight</span></code> is provided, as well as <code class="docutils literal"><span class="pre">heuristic</span> <span class="pre">==</span> <span class="pre">True</span></code> a
+matching with maximum cardinality <em>and</em> maximum (or minimum) weight is
+returned.</p>
+<p>If <code class="docutils literal"><span class="pre">heuristic</span> <span class="pre">==</span> <span class="pre">True</span></code> the algorithm does not necessarily return the
+maximum matching, instead the focus is to run on linear time.</p>
+<p>This algorithm runs in time <span class="math">\(O(EV\times\alpha(E,V))\)</span>, where
+<span class="math">\(\alpha(m,n)\)</span> is a slow growing function that is at most 4 for any
+feasible input. If <cite>heuristic == True</cite>, the algorithm runs in time
+<span class="math">\(O(V + E)\)</span>.</p>
+<p>For a more detailed description, see <a class="reference internal" href="#boost-max-matching" id="id49">[boost-max-matching]</a>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="boost-max-matching" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[boost-max-matching]</td><td><em>(<a class="fn-backref" href="#id49">1</a>, <a class="fn-backref" href="#id50">2</a>)</em> <a class="reference external" href="http://www.boost.org/libs/graph/doc/maximum_matching.html">http://www.boost.org/libs/graph/doc/maximum_matching.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="matching-heuristic" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id51">[matching-heuristic]</a></td><td>B. Hendrickson and R. Leland. &#8220;A Multilevel Algorithm
+for Partitioning Graphs.&#8221; In S. Karin, editor, Proc. Supercomputing ’95,
+San Diego. ACM Press, New York, 1995, <a class="reference external" href="http://dx.doi.org/10.1145/224170.224228">DOI: 10.1145/224170.224228</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">GraphView</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">price_network</span><span class="p">(</span><span class="mi">300</span><span class="p">),</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">max_cardinality_matching</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;double&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">w</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">w</span><span class="o">.</span><span class="n">a</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">edge_color</span><span class="o">=</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">edge_pen_width</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">vertex_fill_color</span><span class="o">=</span><span class="s">&quot;grey&quot;</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">output</span><span class="o">=</span><span class="s">&quot;max_card_match.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id66">
+<img alt="_images/max_card_match.png" src="_images/max_card_match.png" />
+<p class="caption"><span class="caption-text">Edges belonging to the matching are in yellow.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.max_independent_vertex_set">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">max_independent_vertex_set</code><span class="sig-paren">(</span><em>g</em>, <em>high_deg=False</em>, <em>mivs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#max_independent_vertex_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.max_independent_vertex_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a maximal independent vertex set in the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>high_deg</strong> : bool (optional, default: <cite>False</cite>)</p>
+<blockquote>
+<div><p>If <cite>True</cite>, vertices with high degree will be included first in the set,
+otherwise they will be included last.</p>
+</div></blockquote>
+<p><strong>mivs</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: <cite>None</cite>)</p>
+<blockquote>
+<div><p>Vertex property map where the vertex set will be specified.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mivs</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Boolean vertex property map where the set is specified.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>A maximal independent vertex set is an independent set such that adding any
+other vertex to the set forces the set to contain an edge between two
+vertices of the set.</p>
+<p>This implements the algorithm described in <a class="reference internal" href="#mivs-luby" id="id52">[mivs-luby]</a>, which runs in time
+<span class="math">\(O(V + E)\)</span>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="mivs-wikipedia" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id53">[mivs-wikipedia]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Independent_set_%28graph_theory%29">http://en.wikipedia.org/wiki/Independent_set_%28graph_theory%29</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="mivs-luby" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[mivs-luby]</td><td><em>(<a class="fn-backref" href="#id52">1</a>, <a class="fn-backref" href="#id54">2</a>)</em> Luby, M., &#8220;A simple parallel algorithm for the maximal independent set problem&#8221;,
+Proc. 17th Symposium on Theory of Computing, Association for Computing Machinery, pp. 1-10, (1985)
+<a class="reference external" href="http://dx.doi.org/10.1145/22145.22146">DOI: 10.1145/22145.22146</a>.</td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">GraphView</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">price_network</span><span class="p">(</span><span class="mi">300</span><span class="p">),</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">max_independent_vertex_set</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">vertex_fill_color</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;mivs.pdf&quot;</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id67">
+<img alt="_images/mivs.png" src="_images/mivs.png" />
+<p class="caption"><span class="caption-text">Vertices belonging to the set are in yellow.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.edge_reciprocity">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">edge_reciprocity</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#edge_reciprocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.edge_reciprocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the edge reciprocity of the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used
+edges.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>reciprocity</strong> : float</p>
+<blockquote class="last">
+<div><p>The reciprocity value.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The edge <a class="reference internal" href="#reciprocity" id="id55">[reciprocity]</a> is defined as <span class="math">\(E^\leftrightarrow/E\)</span>, where
+<span class="math">\(E^\leftrightarrow\)</span> and <span class="math">\(E\)</span> are the number of bidirectional and
+all edges in the graph, respectively.</p>
+<p>The algorithm runs with complexity <span class="math">\(O(E + V)\)</span>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="reciprocity" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[reciprocity]</td><td><em>(<a class="fn-backref" href="#id55">1</a>, <a class="fn-backref" href="#id56">2</a>)</em> S. Wasserman and K. Faust, &#8220;Social Network Analysis&#8221;.
+(Cambridge University Press, Cambridge, 1994)</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lopez-reciprocity-2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id57">[lopez-reciprocity-2007]</a></td><td>Gorka Zamora-López, Vinko Zlatić, Changsong Zhou, Hrvoje Štefančić, and Jürgen Kurths
+&#8220;Reciprocity of networks with degree correlations and arbitrary degree sequences&#8221;, Phys. Rev. E 77, 016106 (2008)
+<a class="reference external" href="http://dx.doi.org/10.1103/PhysRevE.77.016106">DOI: 10.1103/PhysRevE.77.016106</a>, <a class="reference external" href="http://arxiv.org/abs/0706.3372">arXiv: 0706.3372</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">&lt;...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="go">&lt;Edge object with source &#39;0&#39; and target &#39;1&#39; at 0x33bc710&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">edge_reciprocity</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="go">0.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="go">&lt;Edge object with source &#39;1&#39; and target &#39;0&#39; at 0x33bc7a0&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gt</span><span class="o">.</span><span class="n">edge_reciprocity</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.tsp_tour">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">tsp_tour</code><span class="sig-paren">(</span><em>g</em>, <em>src</em>, <em>weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#tsp_tour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.tsp_tour" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a traveling salesman tour of the graph, which is guaranteed to be
+twice as long as the optimal tour in the worst case.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>src</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Vertex" title="graph_tool.Vertex"><code class="xref py py-class docutils literal"><span class="pre">Vertex</span></code></a></p>
+<blockquote>
+<div><p>The source (and target) of the tour.</p>
+</div></blockquote>
+<p><strong>weight</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Edge weights.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tour</strong> : <a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.9)"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></a></p>
+<blockquote class="last">
+<div><p>List of vertex indexes corresponding to the tour.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The algorithm runs with <span class="math">\(O(E\log V)\)</span> complexity.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="tsp-bgl" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id58">[tsp-bgl]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/metric_tsp_approx.html">http://www.boost.org/libs/graph/doc/metric_tsp_approx.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="tsp" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id59">[tsp]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Travelling_salesman_problem">http://en.wikipedia.org/wiki/Travelling_salesman_problem</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">lattice</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tour</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">tsp_tour</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">tour</span><span class="p">)</span>
+<span class="go">[ 0  1  2 11 12 21 22 31 32 41 42 51 52 61 62 71 72 81 82 83 73 84 74 85 75</span>
+<span class="go"> 86 76 87 77 88 78 68 58 67 57 66 56 65 55 64 54 63 53 43 33 23 13  3  4  5</span>
+<span class="go">  6  7  8 89 79 69 59 49 39 48 38 47 37 46 36 45 35 44 34 24 14 25 15 26 16</span>
+<span class="go"> 27 17 28 18 29 19  9 91 92 93 94 95 96 97 98 99 10 20 30 40 50 60 70 80 90</span>
+<span class="go">  0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.topology.sequential_vertex_coloring">
+<code class="descclassname">graph_tool.topology.</code><code class="descname">sequential_vertex_coloring</code><span class="sig-paren">(</span><em>g</em>, <em>order=None</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/topology.html#sequential_vertex_coloring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.topology.sequential_vertex_coloring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vertex coloring of the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>order</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Order with which the vertices will be colored.</p>
+</div></blockquote>
+<p><strong>color</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> (optional, default: None)</p>
+<blockquote>
+<div><p>Integer-valued vertex property map to store the colors.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>color</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Integer-valued vertex property map with the vertex colors.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The time complexity is <span class="math">\(O(V(d+k))\)</span>, where <span class="math">\(V\)</span> is the number of
+vertices, <span class="math">\(d\)</span> is the maximum degree of the vertices in the graph, and
+<span class="math">\(k\)</span> is the number of colors used.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="sgc-bgl" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id60">[sgc-bgl]</a></td><td><a class="reference external" href="http://www.boost.org/libs/graph/doc/sequential_vertex_coloring.html">http://www.boost.org/libs/graph/doc/sequential_vertex_coloring.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="graph-coloring" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id61">[graph-coloring]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Graph_coloring">http://en.wikipedia.org/wiki/Graph_coloring</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">lattice</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">colors</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">sequential_vertex_coloring</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+<span class="go">[0 1 0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 1 0 0 1 0 1 0 1 0 1 0 1 1 0 1 0 1 0 1</span>
+<span class="go"> 0 1 0 0 1 0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 1 0 0 1 0 1 0 1 0 1 0 1 1 0 1 0</span>
+<span class="go"> 1 0 1 0 1 0 0 1 0 1 0 1 0 1 0 1 1 0 1 0 1 0 1 0 1 0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">graph_tool.topology</span></code> - Assessing graph topology</a><ul>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="stats.html"
+                        title="previous chapter"><code class="docutils literal"><span class="pre">graph_tool.stats</span></code> - Miscellaneous statistics</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="util.html"
+                        title="next chapter"><code class="docutils literal"><span class="pre">graph_tool.util</span></code> - Graph utilities</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/topology.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="graph_tool.util - Graph utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="stats.html" title="graph_tool.stats - Miscellaneous statistics"
+             >previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="modules.html" >Module documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="graph_tool.html" >graph_tool - efficient graph analysis and manipulation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

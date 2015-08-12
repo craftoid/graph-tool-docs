@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Module documentation &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="index.html" />
+    <link rel="next" title="graph_tool - efficient graph analysis and manipulation" href="graph_tool.html" />
+    <link rel="prev" title="Animations with graph-tool" href="demos/animation.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="graph_tool.html" title="graph_tool - efficient graph analysis and manipulation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="demos/animation.html" title="Animations with graph-tool"
+             accesskey="P">previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-documentation">
+<h1>Module documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="graph_tool.html">graph_tool - efficient graph analysis and manipulation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="graph_tool.html#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_tool.html#how-to-use-the-documentation">How to use the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_tool.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="graph_tool.html#available-subpackages">Available subpackages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="centrality.html"><code class="docutils literal"><span class="pre">graph_tool.centrality</span></code> - Centrality measures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="centrality.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="centrality.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="clustering.html"><code class="docutils literal"><span class="pre">graph_tool.clustering</span></code> - Clustering coefficients</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="clustering.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clustering.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="collection.html"><code class="docutils literal"><span class="pre">graph_tool.collection</span></code> - Dataset collection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="collection.html#examples">Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="collection.html#contents">Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="community.html"><code class="docutils literal"><span class="pre">graph_tool.community</span></code> - Community structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="community.html#stochastic-blockmodel-inference">Stochastic blockmodel inference</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="community.html#non-hierarchical-models">Non-hierarchical models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="community.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="community.html#hierarchical-models">Hierarchical models</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="community.html#id1">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="community.html#modularity-based-community-detection">Modularity-based community detection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="community.html#id2">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="community.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="correlations.html"><code class="docutils literal"><span class="pre">graph_tool.correlations</span></code> - Correlations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="correlations.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="correlations.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="draw.html"><code class="docutils literal"><span class="pre">graph_tool.draw</span></code> - Graph drawing and layout</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="draw.html#summary">Summary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="draw.html#layout-algorithms">Layout algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="draw.html#graph-drawing">Graph drawing</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="draw.html#low-level-graph-drawing">Low-level graph drawing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="draw.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="flow.html"><code class="docutils literal"><span class="pre">graph_tool.flow</span></code> - Maximum flow algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="flow.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="flow.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generation.html"><code class="docutils literal"><span class="pre">graph_tool.generation</span></code> - Random graph generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generation.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generation.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="run_action.html"><code class="docutils literal"><span class="pre">graph_tool.run_action</span></code> - Inline C++ code embedding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="run_action.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_action.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="search_module.html"><code class="docutils literal"><span class="pre">graph_tool.search</span></code> - Search algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="search_module.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="search_module.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="search_module.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spectral.html"><code class="docutils literal"><span class="pre">graph_tool.spectral</span></code> - Spectral properties</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spectral.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spectral.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stats.html"><code class="docutils literal"><span class="pre">graph_tool.stats</span></code> - Miscellaneous statistics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stats.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stats.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="topology.html"><code class="docutils literal"><span class="pre">graph_tool.topology</span></code> - Assessing graph topology</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="topology.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="topology.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="util.html"><code class="docutils literal"><span class="pre">graph_tool.util</span></code> - Graph utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="util.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="util.html#contents">Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="demos/animation.html"
+                        title="previous chapter">Animations with graph-tool</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="graph_tool.html"
+                        title="next chapter">graph_tool - efficient graph analysis and manipulation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/modules.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="graph_tool.html" title="graph_tool - efficient graph analysis and manipulation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="demos/animation.html" title="Animations with graph-tool"
+             >previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

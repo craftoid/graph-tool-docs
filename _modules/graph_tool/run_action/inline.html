@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>graph_tool.run_action.inline &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../../_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="../../../index.html" />
+    <link rel="up" title="graph_tool" href="../../graph_tool.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../../graph_tool.html" accesskey="U">graph_tool</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for graph_tool.run_action.inline</h1><div class="highlight"><pre>
+<span class="c">#! /usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2006-2015 Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;</span>
+<span class="c">#</span>
+<span class="c"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU General Public License as published by</span>
+<span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c"># (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This program is distributed in the hope that it will be useful,</span>
+<span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c"># GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU General Public License</span>
+<span class="c"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">hashlib</span><span class="o">,</span> <span class="nn">os.path</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">glob</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">libgraph_tool_core</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="nn">dl_import</span> <span class="kn">import</span> <span class="n">dl_flags</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">scipy.weave</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Error importing scipy.weave module&#39;</span><span class="si">%s</span><span class="s">&#39;; run_action.inline() will not work!&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s">&quot;always&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="ne">ImportWarning</span><span class="p">)</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">ImportWarning</span><span class="p">)</span>
+
+
+<span class="c"># sys.path can be dirty and in unicode! :-p</span>
+<span class="n">sys_path</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
+
+<span class="n">prefix</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="n">p</span> <span class="o">+</span> <span class="s">&quot;/graph_tool&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sys_path</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="k">break</span>
+
+<span class="n">inc_prefix</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s">&quot;/include&quot;</span>
+<span class="n">cxxflags</span> <span class="o">=</span> <span class="n">libgraph_tool_core</span><span class="o">.</span><span class="n">mod_info</span><span class="p">()</span><span class="o">.</span><span class="n">cxxflags</span> <span class="o">+</span> <span class="s">&quot; -I</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">inc_prefix</span> <span class="o">+</span> \
+    <span class="s">&quot; -I</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">inc_prefix</span> <span class="o">+</span> <span class="s">&quot;/boost-workaround&quot;</span>
+
+<span class="c"># this is the code template which defines the action function object</span>
+<span class="n">support_template</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="s">&quot;/run_action/run_action_support.hh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">code_template</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="s">&quot;/run_action/run_action_template.hh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="c"># hash all the headers to force recompilation if code changes</span>
+<span class="n">headers_hash</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+<span class="n">incs</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">inc_prefix</span> <span class="o">+</span> <span class="s">&quot;/*&quot;</span><span class="p">)</span>
+<span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">incs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">inc</span> <span class="o">=</span> <span class="n">incs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">incs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">inc</span><span class="p">):</span>
+        <span class="n">incs</span> <span class="o">+=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">inc</span> <span class="o">+</span> <span class="s">&quot;/*&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">headers_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">headers_hash</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">open</span><span class="p">(</span><span class="n">inc</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<span class="c"># property map types</span>
+<span class="n">props</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">typedef GraphInterface::vertex_index_map_t vertex_index_t;</span>
+<span class="s">typedef GraphInterface::edge_index_map_t edge_index_t;</span>
+<span class="s">typedef prop_bind_t&lt;GraphInterface::vertex_index_map_t&gt; vertex_prop_t;</span>
+<span class="s">typedef prop_bind_t&lt;GraphInterface::edge_index_map_t&gt; edge_prop_t;</span>
+<span class="s">typedef prop_bind_t&lt;ConstantPropertyMap&lt;size_t,graph_property_tag&gt; &gt; graph_prop_t;</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">clean_prop_type</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;::&quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span>\
+           <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&gt;&quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span>\
+           <span class="n">replace</span><span class="p">(</span><span class="s">&quot;__&quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;vertex&quot;</span><span class="p">,</span> <span class="s">&quot;edge&quot;</span><span class="p">,</span> <span class="s">&quot;graph&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">value_types</span><span class="p">():</span>
+        <span class="n">props</span> <span class="o">+=</span> <span class="s">&quot;typedef </span><span class="si">%s</span><span class="s">_prop_t::as&lt;</span><span class="si">%s</span><span class="s"> &gt;::type </span><span class="si">%s</span><span class="s">prop_</span><span class="si">%s</span><span class="s">_t;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> \
+                 <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;bool&quot;</span><span class="p">,</span> <span class="s">&quot;uint8_t&quot;</span><span class="p">),</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">clean_prop_type</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">get_graph_type</span><span class="p">(</span><span class="n">g</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">libgraph_tool_core</span><span class="o">.</span><span class="n">get_graph_type</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="inline"><a class="viewcode-back" href="../../../run_action.html#graph_tool.run_action.inline">[docs]</a><span class="k">def</span> <span class="nf">inline</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">arg_names</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">local_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+           <span class="n">global_dict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">compiler</span><span class="o">=</span><span class="s">&quot;gcc&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+           <span class="n">auto_downcast</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">support_code</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">libraries</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+           <span class="n">library_dirs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extra_compile_args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+           <span class="n">runtime_library_dirs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extra_objects</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+           <span class="n">extra_link_args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask_ret</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compile (if necessary) and run the C++ code specified by &#39;code&#39;, using :mod:`~scipy.weave`.</span>
+<span class="sd">    The (possibly modified) variables in &#39;arg_names&#39; are returned.</span>
+
+<span class="sd">    See :func:`scipy.weave.inline` for detailed parameter documentation.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Graphs and property maps are automatically converted to appropriate [Boost]_</span>
+<span class="sd">    graph types. For convenience, the graph types are automatically typedef&#39;d to</span>
+<span class="sd">    `${name}_graph_t`, where ${name} is the graph&#39;s variable name passed to</span>
+<span class="sd">    `arg_names`. Property map types are typedef&#39;d to `vprop_${val_type}_t`,</span>
+<span class="sd">    `eprop_${val_type}_t` or `gprop_${val_type}_t`, for vertex, edge or graph</span>
+<span class="sd">    properties, where ${val_type} specifies the value type (e.g. int, bool,</span>
+<span class="sd">    double, etc.). In the case of vector types, the &quot;&lt;&quot; and &quot;&gt;&quot; symbols are</span>
+<span class="sd">    replaced by underscores (&quot;_&quot;).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from numpy.random import seed</span>
+<span class="sd">    &gt;&gt;&gt; seed(42)</span>
+<span class="sd">    &gt;&gt;&gt; g = gt.random_graph(100, lambda: (3, 3))</span>
+<span class="sd">    &gt;&gt;&gt; nv = 0</span>
+<span class="sd">    &gt;&gt;&gt; ret = gt.inline(&quot;nv = num_vertices(g);&quot;, [&#39;g&#39;, &#39;nv&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; print(ret[&quot;nv&quot;])</span>
+<span class="sd">    100</span>
+<span class="sd">    &gt;&gt;&gt; prop = g.new_vertex_property(&quot;vector&lt;double&gt;&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; prop[g.vertex(0)] = [1.0, 4.2]</span>
+<span class="sd">    &gt;&gt;&gt; val = 0.0</span>
+<span class="sd">    &gt;&gt;&gt; ret = gt.inline(&quot;val = prop[vertex(0,g)][1];&quot;, [&#39;g&#39;, &#39;prop&#39;, &#39;val&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; print(ret[&quot;val&quot;])</span>
+<span class="sd">    4.2</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [Boost] http://www.boost.org/libs/graph/doc/table_of_contents.html</span>
+<span class="sd">    .. [Weave] http://www.scipy.org/Weave</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">arg_names</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">arg_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">libraries</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">libraries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">library_dirs</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">library_dirs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">extra_compile_args</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">extra_compile_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">runtime_library_dirs</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">runtime_library_dirs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">extra_objects</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">extra_objects</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span>  <span class="n">extra_link_args</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">extra_link_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">mask_ret</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">mask_ret</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c"># we need to get the locals and globals of the _calling_ function. Thus, we</span>
+    <span class="c"># need to go deeper into the call stack</span>
+    <span class="n">call_frame</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">local_dict</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">local_dict</span> <span class="o">=</span> <span class="n">call_frame</span><span class="o">.</span><span class="n">f_locals</span>
+    <span class="k">if</span> <span class="n">global_dict</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">global_dict</span> <span class="o">=</span> <span class="n">call_frame</span><span class="o">.</span><span class="n">f_globals</span>
+
+    <span class="c"># convert variables to boost::python::object, except some known convertible</span>
+    <span class="c"># types</span>
+    <span class="n">arg_def</span> <span class="o">=</span> <span class="n">props</span>
+    <span class="n">arg_conv</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="n">arg_alias</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">alias_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arg_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">local_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">global_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;undefined variable: &quot;</span> <span class="o">+</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">local_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">arg_val</span> <span class="o">=</span> <span class="n">local_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arg_val</span> <span class="o">=</span> <span class="n">global_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">),</span> <span class="n">Graph</span><span class="p">):</span>
+            <span class="n">alias</span> <span class="o">=</span> <span class="s">&quot;__gt__&quot;</span> <span class="o">+</span> <span class="n">arg</span>
+            <span class="n">gi</span> <span class="o">=</span> <span class="s">&quot;__gt__&quot;</span> <span class="o">+</span> <span class="n">arg</span> <span class="o">+</span> <span class="s">&quot;__gi&quot;</span>
+            <span class="n">graph_type</span> <span class="o">=</span> <span class="n">get_graph_type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span>
+            <span class="n">gi_val</span> <span class="o">=</span> <span class="n">arg_val</span><span class="o">.</span><span class="n">_Graph__graph</span>
+            <span class="n">arg_def</span> <span class="o">+=</span> <span class="s">&quot;typedef </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">_graph_t;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">graph_type</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="n">arg_def</span> <span class="o">+=</span> <span class="s">&quot;GraphInterface&amp; </span><span class="si">%s</span><span class="s"> = python::extract&lt;GraphInterface&amp;&gt;(</span><span class="si">%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> \
+                        <span class="p">(</span><span class="n">gi</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span>
+            <span class="n">arg_def</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_graph_t&amp; </span><span class="si">%s</span><span class="s"> = *boost::any_cast&lt;</span><span class="si">%s</span><span class="s">*&gt;(</span><span class="si">%s</span><span class="s">.GetGraphView());</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> \
+                        <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">graph_type</span><span class="p">,</span> <span class="n">gi</span><span class="p">)</span>
+            <span class="n">arg_alias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+            <span class="n">alias_dict</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">gi_val</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span> <span class="o">==</span> <span class="n">PropertyMap</span><span class="p">:</span>
+            <span class="n">alias</span> <span class="o">=</span> <span class="s">&quot;__gt__&quot;</span> <span class="o">+</span> <span class="n">arg</span>
+            <span class="k">if</span> <span class="n">arg_val</span> <span class="o">==</span> <span class="n">arg_val</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">vertex_index</span><span class="p">:</span>
+                <span class="n">prop_name</span> <span class="o">=</span> <span class="s">&quot;GraphInterface::vertex_index_map_t&quot;</span>
+            <span class="k">elif</span> <span class="n">arg_val</span> <span class="o">==</span> <span class="n">arg_val</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">edge_index</span><span class="p">:</span>
+                <span class="n">prop_name</span> <span class="o">=</span> <span class="s">&quot;GraphInterface::edge_index_map_t&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prop_name</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">prop_</span><span class="si">%s</span><span class="s">_t&quot;</span> <span class="o">%</span> \
+                            <span class="p">(</span><span class="n">arg_val</span><span class="o">.</span><span class="n">key_type</span><span class="p">(),</span>
+                             <span class="n">clean_prop_type</span><span class="p">(</span><span class="n">arg_val</span><span class="o">.</span><span class="n">value_type</span><span class="p">()))</span>
+            <span class="n">arg_def</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prop_name</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="n">arg_conv</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> = get_prop&lt;</span><span class="si">%s</span><span class="s">&gt;(</span><span class="si">%s</span><span class="s">);</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> \
+                        <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">prop_name</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span>
+            <span class="n">arg_alias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+            <span class="n">alias_dict</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_val</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+            <span class="n">alias</span> <span class="o">=</span> <span class="s">&quot;__gt__&quot;</span> <span class="o">+</span> <span class="n">arg</span>
+            <span class="n">obj_type</span> <span class="o">=</span> <span class="s">&quot;python::object&quot;</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">obj_type</span> <span class="o">=</span> <span class="s">&quot;python::list&quot;</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="n">obj_type</span> <span class="o">=</span> <span class="s">&quot;python::dict&quot;</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="n">obj_type</span> <span class="o">=</span> <span class="s">&quot;python::tuple&quot;</span>
+            <span class="n">arg_def</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="n">arg_conv</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> = </span><span class="si">%s</span><span class="s">(python::object(python::handle&lt;&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">)</span> <span class="o">+</span> \
+                        <span class="s">&quot;(python::borrowed((PyObject*)(</span><span class="si">%s</span><span class="s">)))));</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">alias</span>
+            <span class="n">arg_alias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+            <span class="n">alias_dict</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_val</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="c">#weave is dumb with bools</span>
+            <span class="n">alias</span> <span class="o">=</span> <span class="s">&quot;__gt__&quot;</span> <span class="o">+</span> <span class="n">arg</span>
+            <span class="n">arg_def</span> <span class="o">+=</span> <span class="s">&quot;bool </span><span class="si">%s</span><span class="s">;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">arg</span>
+            <span class="n">arg_conv</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> = python::extract&lt;bool&gt;(python::object(python::handle&lt;&gt;&quot;</span> <span class="o">%</span> <span class="n">arg</span> <span class="o">+</span> \
+                        <span class="s">&quot;(python::borrowed((PyObject*)(</span><span class="si">%s</span><span class="s">)))));</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">alias</span>
+            <span class="n">arg_alias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+            <span class="n">alias_dict</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg_val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arg_alias</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">local_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">alias_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">alias_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">global_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+
+    <span class="c"># handle returned values</span>
+    <span class="n">return_vals</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arg_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">local_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">arg_val</span> <span class="o">=</span> <span class="n">local_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arg_val</span> <span class="o">=</span> <span class="n">global_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mask_ret</span> <span class="ow">and</span> \
+               <span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">PropertyMap</span><span class="p">]</span> <span class="ow">and</span> \
+               <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">arg_val</span><span class="p">),</span> <span class="n">Graph</span><span class="p">):</span>
+            <span class="n">return_vals</span> <span class="o">+=</span> <span class="s">&#39;return_vals[&quot;</span><span class="si">%s</span><span class="s">&quot;] = </span><span class="si">%s</span><span class="s">;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+
+    <span class="n">support_code</span> <span class="o">+=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s">&quot;support_template&quot;</span><span class="p">]</span>
+
+    <span class="c"># set debug flag and disable optimization in debug mode</span>
+    <span class="n">compile_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">cxxflags</span><span class="p">]</span> <span class="o">+</span> <span class="n">extra_compile_args</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">compile_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;-O[^ ]*&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">compile_args</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;-g&quot;</span><span class="p">]</span>
+
+    <span class="c"># insert a hash value into the code below, to force recompilation when</span>
+    <span class="c"># support_code (and module version) changes</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">support_code</span> <span class="o">+</span> <span class="n">code</span> <span class="o">+</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">libraries</span> <span class="o">+</span> <span class="n">library_dirs</span> <span class="o">+</span>
+                                          <span class="p">[</span><span class="n">cxxflags</span><span class="p">]</span> <span class="o">+</span> \
+                                          <span class="n">extra_compile_args</span> <span class="o">+</span>\
+                                          <span class="n">extra_objects</span> <span class="o">+</span> \
+                                          <span class="n">extra_link_args</span><span class="p">)</span> <span class="o">+</span> \
+                                          <span class="n">headers_hash</span> <span class="o">+</span> <span class="n">__version__</span>
+    <span class="n">support_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;ascii&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+    <span class="n">code</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">// support code hash: &quot;</span> <span class="o">+</span> <span class="n">support_hash</span>
+    <span class="n">inline_code</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="nb">globals</span><span class="p">()[</span><span class="s">&quot;code_template&quot;</span><span class="p">])</span><span class="o">.</span>\
+                  <span class="n">substitute</span><span class="p">(</span><span class="n">var_defs</span><span class="o">=</span><span class="n">arg_def</span><span class="p">,</span> <span class="n">var_extract</span><span class="o">=</span><span class="n">arg_conv</span><span class="p">,</span>
+                             <span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span> <span class="n">return_vals</span><span class="o">=</span><span class="n">return_vals</span><span class="p">)</span>
+
+    <span class="c"># RTLD_GLOBAL needs to be set in dlopen() if we want typeinfo and</span>
+    <span class="c"># friends to work properly across DSO boundaries. See</span>
+    <span class="c"># http://gcc.gnu.org/faq.html#dso</span>
+    <span class="n">orig_dlopen_flags</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getdlopenflags</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">setdlopenflags</span><span class="p">(</span><span class="n">dl_flags</span><span class="p">)</span>
+
+    <span class="c"># call weave and pass all the updated kw arguments</span>
+    <span class="n">ret_vals</span> <span class="o">=</span> \
+             <span class="n">scipy</span><span class="o">.</span><span class="n">weave</span><span class="o">.</span><span class="n">inline</span><span class="p">(</span><span class="n">inline_code</span><span class="p">,</span> <span class="n">arg_alias</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">force</span><span class="p">),</span>
+                                <span class="n">local_dict</span><span class="o">=</span><span class="n">alias_dict</span><span class="p">,</span> <span class="n">global_dict</span><span class="o">=</span><span class="n">global_dict</span><span class="p">,</span>
+                                <span class="n">compiler</span><span class="o">=</span><span class="n">compiler</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">verbose</span><span class="p">),</span>
+                                <span class="n">auto_downcast</span><span class="o">=</span><span class="n">auto_downcast</span><span class="p">,</span>
+                                <span class="n">support_code</span><span class="o">=</span><span class="n">support_code</span><span class="p">,</span>
+                                <span class="n">libraries</span><span class="o">=</span><span class="n">libraries</span><span class="p">,</span>
+                                <span class="n">library_dirs</span><span class="o">=</span><span class="n">sys_path</span> <span class="o">+</span> <span class="n">library_dirs</span><span class="p">,</span>
+                                <span class="n">extra_compile_args</span><span class="o">=</span><span class="n">compile_args</span><span class="p">,</span>
+                                <span class="n">runtime_library_dirs</span><span class="o">=</span><span class="n">runtime_library_dirs</span><span class="p">,</span>
+                                <span class="n">extra_objects</span><span class="o">=</span><span class="n">extra_objects</span><span class="p">,</span>
+                                <span class="n">extra_link_args</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;-Wl,-E &quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">extra_link_args</span><span class="p">)</span>
+    <span class="c"># check if exception was thrown</span>
+    <span class="k">if</span> <span class="n">ret_vals</span><span class="p">[</span><span class="s">&quot;__exception_thrown&quot;</span><span class="p">]:</span>
+        <span class="n">libgraph_tool_core</span><span class="o">.</span><span class="n">raise_error</span><span class="p">(</span><span class="n">ret_vals</span><span class="p">[</span><span class="s">&quot;__exception_error&quot;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">ret_vals</span><span class="p">[</span><span class="s">&quot;__exception_thrown&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">ret_vals</span><span class="p">[</span><span class="s">&quot;__exception_error&quot;</span><span class="p">]</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">setdlopenflags</span><span class="p">(</span><span class="n">orig_dlopen_flags</span><span class="p">)</span>  <span class="c"># reset dlopen to normal case to</span>
+                                           <span class="c"># avoid unnecessary symbol collision</span>
+    <span class="c"># set return vals</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arg_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">ret_vals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">local_dict</span><span class="p">:</span>
+                <span class="n">local_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret_vals</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">global_dict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret_vals</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ret_vals</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../../graph_tool.html" >graph_tool</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

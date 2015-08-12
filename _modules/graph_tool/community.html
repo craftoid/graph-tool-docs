@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>graph_tool.community &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="../../index.html" />
+    <link rel="up" title="graph_tool" href="../graph_tool.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../graph_tool.html" accesskey="U">graph_tool</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for graph_tool.community</h1><div class="highlight"><pre>
+<span class="c">#! /usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># graph_tool -- a general graph manipulation python module</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2006-2015 Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;</span>
+<span class="c">#</span>
+<span class="c"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU General Public License as published by</span>
+<span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c"># (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This program is distributed in the hope that it will be useful,</span>
+<span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c"># GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU General Public License</span>
+<span class="c"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">``graph_tool.community`` - Community structure</span>
+<span class="sd">----------------------------------------------</span>
+
+<span class="sd">This module contains algorithms for the computation of community structure on</span>
+<span class="sd">graphs.</span>
+
+
+<span class="sd">Stochastic blockmodel inference</span>
+<span class="sd">+++++++++++++++++++++++++++++++</span>
+
+<span class="sd">Non-hierarchical models</span>
+<span class="sd">=======================</span>
+
+<span class="sd">Summary</span>
+<span class="sd">^^^^^^^</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :nosignatures:</span>
+
+<span class="sd">   minimize_blockmodel_dl</span>
+<span class="sd">   BlockState</span>
+<span class="sd">   OverlapBlockState</span>
+<span class="sd">   CovariateBlockState</span>
+<span class="sd">   mcmc_sweep</span>
+<span class="sd">   MinimizeState</span>
+<span class="sd">   multilevel_minimize</span>
+<span class="sd">   collect_vertex_marginals</span>
+<span class="sd">   collect_edge_marginals</span>
+<span class="sd">   mf_entropy</span>
+<span class="sd">   bethe_entropy</span>
+<span class="sd">   model_entropy</span>
+<span class="sd">   get_max_B</span>
+<span class="sd">   get_akc</span>
+<span class="sd">   condensation_graph</span>
+<span class="sd">   get_block_edge_gradient</span>
+
+<span class="sd">Hierarchical models</span>
+<span class="sd">===================</span>
+
+<span class="sd">Summary</span>
+<span class="sd">^^^^^^^</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :nosignatures:</span>
+
+<span class="sd">   minimize_nested_blockmodel_dl</span>
+<span class="sd">   NestedBlockState</span>
+<span class="sd">   NestedMinimizeState</span>
+<span class="sd">   init_nested_state</span>
+<span class="sd">   nested_mcmc_sweep</span>
+<span class="sd">   nested_tree_sweep</span>
+<span class="sd">   get_hierarchy_tree</span>
+
+
+<span class="sd">Modularity-based community detection</span>
+<span class="sd">++++++++++++++++++++++++++++++++++++</span>
+
+<span class="sd">Summary</span>
+<span class="sd">=======</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :nosignatures:</span>
+
+<span class="sd">   community_structure</span>
+<span class="sd">   modularity</span>
+
+
+<span class="sd">Contents</span>
+<span class="sd">++++++++</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+    <span class="nb">range</span> <span class="o">=</span> <span class="nb">xrange</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">_degree</span><span class="p">,</span> <span class="n">_prop</span><span class="p">,</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">GraphView</span><span class="p">,</span> <span class="n">libcore</span><span class="p">,</span> <span class="n">_get_rng</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;minimize_blockmodel_dl&quot;</span><span class="p">,</span>
+           <span class="s">&quot;BlockState&quot;</span><span class="p">,</span>
+           <span class="s">&quot;OverlapBlockState&quot;</span><span class="p">,</span>
+           <span class="s">&quot;CovariateBlockState&quot;</span><span class="p">,</span>
+           <span class="s">&quot;mcmc_sweep&quot;</span><span class="p">,</span>
+           <span class="s">&quot;MinimizeState&quot;</span><span class="p">,</span>
+           <span class="s">&quot;multilevel_minimize&quot;</span><span class="p">,</span>
+           <span class="s">&quot;collect_edge_marginals&quot;</span><span class="p">,</span>
+           <span class="s">&quot;collect_vertex_marginals&quot;</span><span class="p">,</span>
+           <span class="s">&quot;mf_entropy&quot;</span><span class="p">,</span>
+           <span class="s">&quot;bethe_entropy&quot;</span><span class="p">,</span>
+           <span class="s">&quot;model_entropy&quot;</span><span class="p">,</span>
+           <span class="s">&quot;get_max_B&quot;</span><span class="p">,</span>
+           <span class="s">&quot;get_akc&quot;</span><span class="p">,</span>
+           <span class="s">&quot;condensation_graph&quot;</span><span class="p">,</span>
+           <span class="s">&quot;minimize_nested_blockmodel_dl&quot;</span><span class="p">,</span>
+           <span class="s">&quot;NestedBlockState&quot;</span><span class="p">,</span>
+           <span class="s">&quot;NestedMinimizeState&quot;</span><span class="p">,</span>
+           <span class="s">&quot;init_nested_state&quot;</span><span class="p">,</span>
+           <span class="s">&quot;nested_mcmc_sweep&quot;</span><span class="p">,</span>
+           <span class="s">&quot;nested_tree_sweep&quot;</span><span class="p">,</span>
+           <span class="s">&quot;get_hierarchy_tree&quot;</span><span class="p">,</span>
+           <span class="s">&quot;get_block_edge_gradient&quot;</span><span class="p">,</span>
+           <span class="s">&quot;community_structure&quot;</span><span class="p">,</span>
+           <span class="s">&quot;modularity&quot;</span><span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">blockmodel</span> <span class="kn">import</span> <span class="n">minimize_blockmodel_dl</span><span class="p">,</span> <span class="n">BlockState</span><span class="p">,</span> <span class="n">mcmc_sweep</span><span class="p">,</span> \
+    <span class="n">multilevel_minimize</span><span class="p">,</span> <span class="n">model_entropy</span><span class="p">,</span> <span class="n">get_max_B</span><span class="p">,</span> <span class="n">get_akc</span><span class="p">,</span> <span class="n">condensation_graph</span><span class="p">,</span> \
+    <span class="n">collect_edge_marginals</span><span class="p">,</span> <span class="n">collect_vertex_marginals</span><span class="p">,</span> <span class="n">bethe_entropy</span><span class="p">,</span> <span class="n">mf_entropy</span><span class="p">,</span> \
+    <span class="n">MinimizeState</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">overlap_blockmodel</span> <span class="kn">import</span> <span class="n">OverlapBlockState</span><span class="p">,</span> <span class="n">get_block_edge_gradient</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">covariate_blockmodel</span> <span class="kn">import</span> <span class="n">CovariateBlockState</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">nested_blockmodel</span> <span class="kn">import</span> <span class="n">NestedBlockState</span><span class="p">,</span> <span class="n">NestedMinimizeState</span><span class="p">,</span> \
+    <span class="n">init_nested_state</span><span class="p">,</span> <span class="n">nested_mcmc_sweep</span><span class="p">,</span> <span class="n">nested_tree_sweep</span><span class="p">,</span> \
+    <span class="n">minimize_nested_blockmodel_dl</span><span class="p">,</span> <span class="n">get_hierarchy_tree</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">blockmodel</span> <span class="kn">import</span> <span class="n">libcommunity</span> <span class="k">as</span> <span class="n">libgraph_tool_community</span>
+
+<div class="viewcode-block" id="community_structure"><a class="viewcode-back" href="../../community.html#graph_tool.community.community_structure">[docs]</a><span class="k">def</span> <span class="nf">community_structure</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">,</span> <span class="n">n_spins</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s">&quot;erdos&quot;</span><span class="p">,</span>
+                        <span class="n">spins</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">t_range</span><span class="o">=</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">),</span>
+                        <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">history_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">r&quot;&quot;&quot;Obtain the community structure for the given graph, using a Potts model</span>
+<span class="sd">    approach, which is a generalization of modularity maximization).</span>
+
+<span class="sd">    .. warning::</span>
+
+<span class="sd">       **The use of this function is discouraged.** Although community detection</span>
+<span class="sd">       based on modularity maximization is very common, it is very</span>
+<span class="sd">       problematic. It will find high-scoring partitions where there is none</span>
+<span class="sd">       [guimera-modularity-2004]_, and at the same time will not find actual</span>
+<span class="sd">       structure in large graphs [fortunato-resolution-2007]_. Furthermore, in</span>
+<span class="sd">       many empirical networks, the partitions found in this way are largely</span>
+<span class="sd">       meaningless [good-performance-2010]_.</span>
+
+<span class="sd">       One should use instead methods based on statistical inference</span>
+<span class="sd">       (i.e. :func:`~graph_tool.community.minimize_blockmodel_dl` and</span>
+<span class="sd">       :func:`~graph_tool.community.minimize_nested_blockmodel_dl`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    g :  :class:`~graph_tool.Graph`</span>
+<span class="sd">        Graph to be used.</span>
+<span class="sd">    n_iter : int</span>
+<span class="sd">        Number of iterations.</span>
+<span class="sd">    n_spins : int</span>
+<span class="sd">        Number of maximum spins to be used.</span>
+<span class="sd">    gamma : float (optional, default: 1.0)</span>
+<span class="sd">        The :math:`\gamma` parameter of the hamiltonian.</span>
+<span class="sd">    corr : string (optional, default: &quot;erdos&quot;)</span>
+<span class="sd">        Type of correlation to be assumed: Either &quot;erdos&quot;, &quot;uncorrelated&quot; and</span>
+<span class="sd">        &quot;correlated&quot;.</span>
+<span class="sd">    spins : :class:`~graph_tool.PropertyMap`</span>
+<span class="sd">        Vertex property maps to store the spin variables. If this is specified,</span>
+<span class="sd">        the values will not be initialized to a random value.</span>
+<span class="sd">    weight : :class:`~graph_tool.PropertyMap` (optional, default: None)</span>
+<span class="sd">        Edge property map with the optional edge weights.</span>
+<span class="sd">    t_range : tuple of floats (optional, default: (100.0, 0.01))</span>
+<span class="sd">        Temperature range.</span>
+<span class="sd">    verbose : bool (optional, default: False)</span>
+<span class="sd">        Display verbose information.</span>
+<span class="sd">    history_file : string (optional, default: None)</span>
+<span class="sd">        History file to keep information about the simulated annealing.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    spins : :class:`~graph_tool.PropertyMap`</span>
+<span class="sd">        Vertex property map with the spin values.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    community_structure: Obtain the community structure</span>
+<span class="sd">    modularity: Calculate the network modularity</span>
+<span class="sd">    condensation_graph: Network of communities, or blocks</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The method of community detection covered here is an implementation of what</span>
+<span class="sd">    was proposed in [reichard-statistical-2006]_. It</span>
+<span class="sd">    consists of a `simulated annealing`_ algorithm which tries to minimize the</span>
+<span class="sd">    following hamiltonian:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \mathcal{H}(\{\sigma\}) = - \sum_{i \neq j} \left(A_{ij} -</span>
+<span class="sd">        \gamma p_{ij}\right) \delta(\sigma_i,\sigma_j)</span>
+
+<span class="sd">    where :math:`p_{ij}` is the probability of vertices i and j being connected,</span>
+<span class="sd">    which reduces the problem of community detection to finding the ground</span>
+<span class="sd">    states of a Potts spin-glass model. It can be shown that minimizing this</span>
+<span class="sd">    hamiltonan, with :math:`\gamma=1`, is equivalent to maximizing</span>
+<span class="sd">    Newman&#39;s modularity ([newman-modularity-2006]_). By increasing the parameter</span>
+<span class="sd">    :math:`\gamma`, it&#39;s possible also to find sub-communities.</span>
+
+<span class="sd">    It is possible to select three policies for choosing :math:`p_{ij}` and thus</span>
+<span class="sd">    choosing the null model: &quot;erdos&quot; selects a Erdos-Reyni random graph,</span>
+<span class="sd">    &quot;uncorrelated&quot; selects an arbitrary random graph with no vertex-vertex</span>
+<span class="sd">    correlations, and &quot;correlated&quot; selects a random graph with average</span>
+<span class="sd">    correlation taken from the graph itself. Optionally a weight property</span>
+<span class="sd">    can be given by the `weight` option.</span>
+
+
+<span class="sd">    The most important parameters for the algorithm are the initial and final</span>
+<span class="sd">    temperatures (`t_range`), and total number of iterations (`max_iter`). It</span>
+<span class="sd">    normally takes some trial and error to determine the best values for a</span>
+<span class="sd">    specific graph. To help with this, the `history` option can be used, which</span>
+<span class="sd">    saves to a chosen file the temperature and number of spins per iteration,</span>
+<span class="sd">    which can be used to determined whether or not the algorithm converged to</span>
+<span class="sd">    the optimal solution. Also, the `verbose` option prints the computation</span>
+<span class="sd">    status on the terminal.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        If the spin property already exists before the computation starts, it&#39;s</span>
+<span class="sd">        not re-sampled at the beginning. This means that it&#39;s possible to</span>
+<span class="sd">        continue a previous run, if you saved the graph, by properly setting</span>
+<span class="sd">        `t_range` value, and using the same `spin` property.</span>
+
+<span class="sd">    If enabled during compilation, this algorithm runs in parallel.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    This example uses the network :download:`community.xml &lt;community.xml&gt;`.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pylab import *</span>
+<span class="sd">    &gt;&gt;&gt; from numpy.random import seed</span>
+<span class="sd">    &gt;&gt;&gt; seed(42)</span>
+<span class="sd">    &gt;&gt;&gt; g = gt.load_graph(&quot;community.xml&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; pos = g.vertex_properties[&quot;pos&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; spins = gt.community_structure(g, 10000, 20, t_range=(5, 0.1))</span>
+<span class="sd">    &gt;&gt;&gt; gt.graph_draw(g, pos=pos, vertex_fill_color=spins, output_size=(420, 420), output=&quot;comm1.pdf&quot;)</span>
+<span class="sd">    &lt;...&gt;</span>
+
+<span class="sd">    .. testcode::</span>
+<span class="sd">       :hide:</span>
+
+<span class="sd">       gt.graph_draw(g, pos=pos, vertex_fill_color=spins, output_size=(420, 420), output=&quot;comm1.png&quot;)</span>
+
+<span class="sd">    &gt;&gt;&gt; spins = gt.community_structure(g, 10000, 40, t_range=(5, 0.1), gamma=2.5)</span>
+<span class="sd">    &gt;&gt;&gt; gt.graph_draw(g, pos=pos, vertex_fill_color=spins, output_size=(420, 420), output=&quot;comm2.pdf&quot;)</span>
+<span class="sd">    &lt;...&gt;</span>
+
+<span class="sd">    .. testcode::</span>
+<span class="sd">       :hide:</span>
+
+<span class="sd">       gt.graph_draw(g, pos=pos, vertex_fill_color=spins, output_size=(420, 420), output=&quot;comm2.png&quot;)</span>
+
+<span class="sd">    .. figure:: comm1.*</span>
+<span class="sd">       :align: center</span>
+
+<span class="sd">       The community structure with :math:`\gamma=1`.</span>
+
+
+<span class="sd">    .. figure:: comm2.*</span>
+<span class="sd">       :align: center</span>
+
+<span class="sd">       The community structure with :math:`\gamma=2.5`.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    .. [guimera-modularity-2004] Roger Guimerà, Marta Sales-Pardo, and Luís</span>
+<span class="sd">       A. Nunes Amaral, &quot;Modularity from fluctuations in random graphs and</span>
+<span class="sd">       complex networks&quot;, Phys. Rev. E 70, 025101(R) (2004),</span>
+<span class="sd">       :doi:`10.1103/PhysRevE.70.025101`</span>
+<span class="sd">    .. [fortunato-resolution-2007] Santo Fortunato and Marc Barthélemy,</span>
+<span class="sd">       &quot;Resolution limit in community detection&quot;, Proc. Natl. Acad. Sci. USA</span>
+<span class="sd">       104(1): 36–41 (2007), :doi:`10.1073/pnas.0605965104`</span>
+<span class="sd">    .. [good-performance-2010] Benjamin H. Good, Yves-Alexandre de Montjoye, and</span>
+<span class="sd">       Aaron Clauset, &quot;Performance of modularity maximization in practical</span>
+<span class="sd">       contexts&quot;, Phys. Rev. E 81, 046106 (2010),</span>
+<span class="sd">       :doi:`10.1103/PhysRevE.81.046106`</span>
+<span class="sd">    .. [reichard-statistical-2006] Joerg Reichardt and Stefan Bornholdt,</span>
+<span class="sd">       &quot;Statistical Mechanics of Community Detection&quot;, Phys. Rev. E 74</span>
+<span class="sd">       016110 (2006), :doi:`10.1103/PhysRevE.74.016110`, :arxiv:`cond-mat/0603718`</span>
+<span class="sd">    .. [newman-modularity-2006] M. E. J. Newman, &quot;Modularity and community</span>
+<span class="sd">       structure in networks&quot;, Proc. Natl. Acad. Sci. USA 103, 8577-8582 (2006),</span>
+<span class="sd">       :doi:`10.1073/pnas.0601602103`, :arxiv:`physics/0602124`</span>
+<span class="sd">    .. _simulated annealing: http://en.wikipedia.org/wiki/Simulated_annealing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">spins</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">spins</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int32_t&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">history_file</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">history_file</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="n">ug</span> <span class="o">=</span> <span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">libgraph_tool_community</span><span class="o">.</span><span class="n">community_structure</span><span class="p">(</span><span class="n">ug</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">corr</span><span class="p">,</span>
+                                                <span class="n">n_iter</span><span class="p">,</span> <span class="n">t_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">t_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                <span class="n">n_spins</span><span class="p">,</span> <span class="n">_get_rng</span><span class="p">(),</span>
+                                                <span class="n">verbose</span><span class="p">,</span> <span class="n">history_file</span><span class="p">,</span>
+                                                <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">ug</span><span class="p">,</span> <span class="n">weight</span><span class="p">),</span>
+                                                <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">ug</span><span class="p">,</span> <span class="n">spins</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">spins</span>
+
+</div>
+<div class="viewcode-block" id="modularity"><a class="viewcode-back" href="../../community.html#graph_tool.community.modularity">[docs]</a><span class="k">def</span> <span class="nf">modularity</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">r&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Newman&#39;s modularity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    g : :class:`~graph_tool.Graph`</span>
+<span class="sd">        Graph to be used.</span>
+<span class="sd">    prop : :class:`~graph_tool.PropertyMap`</span>
+<span class="sd">        Vertex property map with the community partition.</span>
+<span class="sd">    weight : :class:`~graph_tool.PropertyMap` (optional, default: None)</span>
+<span class="sd">        Edge property map with the optional edge weights.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    modularity : float</span>
+<span class="sd">        Newman&#39;s modularity.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    community_structure: obtain the community structure</span>
+<span class="sd">    modularity: calculate the network modularity</span>
+<span class="sd">    condensation_graph: Network of communities, or blocks</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    Given a specific graph partition specified by `prop`, Newman&#39;s modularity</span>
+<span class="sd">    [newman-modularity-2006]_ is defined by:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">          Q = \frac{1}{2E} \sum_r e_{rr}- \frac{e_r^2}{2E}</span>
+
+<span class="sd">    where :math:`e_{rs}` is the number of edges which fall between</span>
+<span class="sd">    vertices in communities s and r, or twice that number if :math:`r = s`, and</span>
+<span class="sd">    :math:`e_r = \sum_s e_{rs}`.</span>
+
+<span class="sd">    If weights are provided, the matrix :math:`e_{rs}` corresponds to the sum</span>
+<span class="sd">    of edge weights instead of number of edges, and the value of :math:`E`</span>
+<span class="sd">    becomes the total sum of edge weights.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pylab import *</span>
+<span class="sd">    &gt;&gt;&gt; from numpy.random import seed</span>
+<span class="sd">    &gt;&gt;&gt; seed(42)</span>
+<span class="sd">    &gt;&gt;&gt; g = gt.load_graph(&quot;community.xml&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; b = gt.community_structure(g, 10000, 10)</span>
+<span class="sd">    &gt;&gt;&gt; gt.modularity(g, b)</span>
+<span class="sd">    0.5353141885624041</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [newman-modularity-2006] M. E. J. Newman, &quot;Modularity and community</span>
+<span class="sd">       structure in networks&quot;, Proc. Natl. Acad. Sci. USA 103, 8577-8582 (2006),</span>
+<span class="sd">       :doi:`10.1073/pnas.0601602103`, :arxiv:`physics/0602124`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ug</span> <span class="o">=</span> <span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">libgraph_tool_community</span><span class="o">.</span><span class="n">modularity</span><span class="p">(</span><span class="n">ug</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                           <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">ug</span><span class="p">,</span> <span class="n">weight</span><span class="p">),</span>
+                                           <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">ug</span><span class="p">,</span> <span class="n">prop</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">m</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../graph_tool.html" >graph_tool</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

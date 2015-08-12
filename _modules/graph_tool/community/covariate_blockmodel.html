@@ -1,0 +1,841 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>graph_tool.community.covariate_blockmodel &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../../_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="../../../index.html" />
+    <link rel="up" title="graph_tool.community" href="../community.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../../graph_tool.html" >graph_tool</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="../community.html" accesskey="U">graph_tool.community</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for graph_tool.community.covariate_blockmodel</h1><div class="highlight"><pre>
+<span class="c">#! /usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># graph_tool -- a general graph manipulation python module</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2006-2016 Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;</span>
+<span class="c">#</span>
+<span class="c"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU General Public License as published by</span>
+<span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c"># (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This program is distributed in the hope that it will be useful,</span>
+<span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c"># GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU General Public License</span>
+<span class="c"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+    <span class="nb">range</span> <span class="o">=</span> <span class="nb">xrange</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">_degree</span><span class="p">,</span> <span class="n">_prop</span><span class="p">,</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">GraphView</span><span class="p">,</span> <span class="n">libcore</span><span class="p">,</span> <span class="n">_get_rng</span><span class="p">,</span> <span class="n">PropertyMap</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gammaln</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">group_vector_property</span><span class="p">,</span> <span class="n">ungroup_vector_property</span><span class="p">,</span> <span class="n">Vector_size_t</span><span class="p">,</span> \
+    <span class="n">openmp_get_num_threads</span><span class="p">,</span> <span class="n">openmp_enabled</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="nn">decorators</span> <span class="kn">import</span> <span class="n">_wraps</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="nn">dl_import</span> <span class="kn">import</span> <span class="n">dl_import</span>
+<span class="n">dl_import</span><span class="p">(</span><span class="s">&quot;from . import libgraph_tool_community as libcommunity&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="nn">generation</span> <span class="kn">import</span> <span class="n">graph_union</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="nn">stats</span> <span class="kn">import</span> <span class="n">vertex_hist</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">blockmodel</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">blockmodel</span> <span class="kn">import</span> <span class="n">_bm_test</span>
+
+<div class="viewcode-block" id="CovariateBlockState"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState">[docs]</a><span class="k">class</span> <span class="nc">CovariateBlockState</span><span class="p">(</span><span class="n">BlockState</span><span class="p">):</span>
+    <span class="sd">r&quot;&quot;&quot;This class encapsulates the (possibly overlapping) block state of a given</span>
+<span class="sd">    graph, where the edges are divided into discrete layers.</span>
+
+<span class="sd">    This must be instantiated and used by functions such as :func:`mcmc_sweep`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    g : :class:`~graph_tool.Graph`</span>
+<span class="sd">        Graph to be modelled.</span>
+<span class="sd">    ec : :class:`~graph_tool.PropertyMap`</span>
+<span class="sd">        Edge :class:`~graph_tool.PropertyMap` containing edge covariates that</span>
+<span class="sd">        will split the network in discrete layers.</span>
+<span class="sd">    eweight : :class:`~graph_tool.PropertyMap` (optional, default: ``None``)</span>
+<span class="sd">        Edge multiplicities (for multigraphs or block graphs).</span>
+<span class="sd">    vweight : :class:`~graph_tool.PropertyMap` (optional, default: ``None``)</span>
+<span class="sd">        Vertex multiplicities (for block graphs).</span>
+<span class="sd">    b : :class:`~graph_tool.PropertyMap` or :class:`numpy.ndarray` (optional, default: ``None``)</span>
+<span class="sd">        Initial block labels on the vertices or half-edges. If not supplied, it</span>
+<span class="sd">        will be randomly sampled.</span>
+<span class="sd">    B : ``int`` (optional, default: ``None``)</span>
+<span class="sd">        Number of blocks. If not supplied it will be either obtained from the</span>
+<span class="sd">        parameter ``b``, or set to the maximum possible value according to the</span>
+<span class="sd">        minimum description length.</span>
+<span class="sd">    clabel : :class:`~graph_tool.PropertyMap` (optional, default: ``None``)</span>
+<span class="sd">        Constraint labels on the vertices. If supplied, vertices with different</span>
+<span class="sd">        label values will not be clustered in the same group.</span>
+<span class="sd">    layers : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">        If ``layers==True``, the &quot;independent layers&quot; version of the model is</span>
+<span class="sd">        used, instead of the &quot;edge covariates&quot; version.</span>
+<span class="sd">    deg_corr : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">        If ``True``, the degree-corrected version of the blockmodel ensemble will</span>
+<span class="sd">        be assumed, otherwise the traditional variant will be used.</span>
+<span class="sd">    overlap : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">        If ``True``, the overlapping version of the moddel will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">ec</span><span class="p">,</span> <span class="n">eweight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vweight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">clabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">deg_corr</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">overlap</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">BlockState</span><span class="o">.</span><span class="n">_state_ref_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ec_done&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">ec</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="n">libcommunity</span><span class="o">.</span><span class="n">ec_hist</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span> <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">ec</span><span class="p">),</span>
+                                 <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">))</span>
+            <span class="n">ec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">layers</span>
+
+        <span class="k">if</span> <span class="s">&quot;max_BE&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&quot;max_BE&quot;</span><span class="p">]</span>
+        <span class="n">max_BE</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overlap</span><span class="p">:</span>
+            <span class="n">total_state</span> <span class="o">=</span> <span class="n">BlockState</span><span class="p">(</span><span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">skip_properties</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+                                     <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">eweight</span><span class="o">=</span><span class="n">eweight</span><span class="p">,</span>
+                                     <span class="n">vweight</span><span class="o">=</span><span class="n">vweight</span><span class="p">,</span> <span class="n">clabel</span><span class="o">=</span><span class="n">clabel</span><span class="p">,</span>
+                                     <span class="n">deg_corr</span><span class="o">=</span><span class="n">deg_corr</span><span class="p">,</span>
+                                     <span class="n">max_BE</span><span class="o">=</span><span class="n">max_BE</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total_state</span> <span class="o">=</span> <span class="n">OverlapBlockState</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">eweight</span><span class="o">=</span><span class="n">eweight</span><span class="p">,</span>
+                                            <span class="n">vweight</span><span class="o">=</span><span class="n">vweight</span><span class="p">,</span> <span class="n">clabel</span><span class="o">=</span><span class="n">clabel</span><span class="p">,</span>
+                                            <span class="n">deg_corr</span><span class="o">=</span><span class="n">deg_corr</span><span class="p">,</span>
+                                            <span class="n">max_BE</span><span class="o">=</span><span class="n">max_BE</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">base_g</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">g</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span> <span class="o">=</span> <span class="n">total_state</span>
+
+        <span class="k">if</span> <span class="n">overlap</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">ec</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">eindex</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">pmap</span><span class="p">(</span><span class="n">ec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">eweight</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">eweight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vweight</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">vweight</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">E</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">E</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">N</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_weighted</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">is_weighted</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">B</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clabel</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">clabel</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="o">=</span> <span class="n">deg_corr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="n">overlap</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vc</span> <span class="o">=</span> <span class="n">group_vector_property</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmap</span> <span class="o">=</span> <span class="n">group_vector_property</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vertex_index</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">bmap_t</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">):</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">())</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;brmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">split_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                 <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">),</span>
+                                 <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+                                 <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">),</span>
+                                 <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vweight</span><span class="p">),</span>
+                                 <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vc</span><span class="p">),</span>
+                                 <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vmap</span><span class="p">),</span>
+                                 <span class="p">[</span><span class="n">u</span><span class="o">.</span><span class="n">_Graph__graph</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">],</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="p">,</span>
+                                 <span class="p">[</span><span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;brmap&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="n">total_state</span><span class="o">.</span><span class="n">master</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">total_state</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total_state</span><span class="o">.</span><span class="n">master</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">total_state</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">total_state</span><span class="o">.</span><span class="n">free_blocks</span> <span class="o">=</span> <span class="n">Vector_size_t</span><span class="p">()</span>
+        <span class="n">total_state</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;brmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vertex_index</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">total_state</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vertex_index</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">total_state</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span> <span class="o">=</span> <span class="n">max_BE</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_state</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">mrs</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">==</span> <span class="n">state</span><span class="o">.</span><span class="n">eweight</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="p">(</span><span class="s">&quot;inconsistent mrs!&quot;</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__bg</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__mrs</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__bec</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dummy_bg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dummy_bg</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+        <span class="c">#self.wr = self.__dummy_bg.own_property(total_state.wr)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wr</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">wr</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweep_vertices</span> <span class="o">=</span> <span class="n">total_state</span><span class="o">.</span><span class="n">sweep_vertices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emat</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">overlap_stats</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrs</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="s">&quot;inconsistent mrs!&quot;</span>
+
+        <span class="c"># computation cache</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_safelog</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_xlogx</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_lgamma</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))</span>
+
+
+    <span class="k">def</span> <span class="nf">__get_base_u</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="n">node_index</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int64_t&quot;</span><span class="p">)</span>
+        <span class="n">pmap</span><span class="p">(</span><span class="n">node_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">node_index</span><span class="p">)</span>
+        <span class="n">base_u</span><span class="p">,</span> <span class="n">nindex</span><span class="p">,</span> <span class="n">vcount</span><span class="p">,</span> <span class="n">ecount</span> <span class="o">=</span> \
+            <span class="n">condensation_graph</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">node_index</span><span class="p">,</span>
+                               <span class="n">self_loops</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                               <span class="n">parallel_edges</span><span class="o">=</span><span class="bp">True</span><span class="p">)[:</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">rindex</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">nindex</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;int64&quot;</span><span class="p">)</span>
+        <span class="n">reverse_map</span><span class="p">(</span><span class="n">nindex</span><span class="p">,</span> <span class="n">rindex</span><span class="p">)</span>
+        <span class="n">pmap</span><span class="p">(</span><span class="n">node_index</span><span class="p">,</span> <span class="n">rindex</span><span class="p">)</span>
+        <span class="n">base_u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nindex</span>
+        <span class="k">return</span> <span class="n">base_u</span><span class="p">,</span> <span class="n">node_index</span>
+
+    <span class="k">def</span> <span class="nf">__gen_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">openmp_enabled</span><span class="p">():</span>
+            <span class="n">nt</span> <span class="o">=</span> <span class="n">openmp_get_num_threads</span><span class="p">()</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nt</span>
+        <span class="c">#B = max(B, u.vp[&quot;b&quot;].a.max() + 1 + 2 * nt)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">BlockState</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">],</span>
+                               <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span>
+                               <span class="n">eweight</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">],</span>
+                               <span class="n">vweight</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">],</span>
+                               <span class="n">deg_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span><span class="p">,</span>
+                               <span class="n">force_weighted</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_weighted</span><span class="p">,</span>
+                               <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base_u</span><span class="p">,</span> <span class="n">node_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_base_u</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">OverlapBlockState</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">a</span><span class="p">,</span>
+                                      <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span>
+                                      <span class="n">vweight</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">],</span>
+                                      <span class="n">node_index</span><span class="o">=</span><span class="n">node_index</span><span class="p">,</span>
+                                      <span class="n">base_g</span><span class="o">=</span><span class="n">base_u</span><span class="p">,</span>
+                                      <span class="n">deg_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span><span class="p">,</span>
+                                      <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">master</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">free_blocks</span> <span class="o">=</span> <span class="n">Vector_size_t</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__merge_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@contextlib.contextmanager</span>
+        <span class="k">def</span> <span class="nf">context_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_src</span><span class="p">,</span> <span class="n">l_tgt</span><span class="p">,</span> <span class="n">revert</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_src</span><span class="p">,</span> <span class="n">l_tgt</span><span class="p">,</span> <span class="n">revert</span><span class="o">=</span><span class="n">revert</span><span class="p">)</span>
+
+        <span class="nd">@_wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_src</span><span class="p">,</span> <span class="n">l_tgt</span><span class="p">,</span> <span class="n">revert</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="n">context_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_src</span><span class="p">,</span> <span class="n">l_tgt</span><span class="p">,</span> <span class="n">revert</span><span class="o">=</span><span class="n">revert</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">revert</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">gen</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">gen</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="nd">@__merge_decorator</span>
+<div class="viewcode-block" id="CovariateBlockState.merge_layers"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.merge_layers">[docs]</a>    <span class="k">def</span> <span class="nf">merge_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_src</span><span class="p">,</span> <span class="n">l_tgt</span><span class="p">,</span> <span class="n">revert</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Merge layer `l_src` into `l_tgt` and delete `l_src`.</span>
+
+<span class="sd">        If ``revert == True``, this will return a context that can be used with</span>
+<span class="sd">        the ``with`` statement, so that when the context is closed, the layers</span>
+<span class="sd">        are returned to their original state, i.e.</span>
+
+<span class="sd">        .. code::</span>
+
+<span class="sd">            with state.merge_layers(3, 10, revert=True):</span>
+<span class="sd">                # here layers 3 and 10 are merged</span>
+<span class="sd">                pass</span>
+<span class="sd">            # here layers 3 and 10 exist separately as they did before</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">l_src</span> <span class="o">==</span> <span class="n">l_tgt</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">u_src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_src</span><span class="p">]</span>
+        <span class="n">u_tgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_tgt</span><span class="p">]</span>
+        <span class="n">s_src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">s_tgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">u_src_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_base_u</span><span class="p">(</span><span class="n">u_src</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">u_tgt_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_base_u</span><span class="p">(</span><span class="n">u_tgt</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">u_src_base</span> <span class="o">=</span> <span class="n">u_src</span>
+            <span class="n">u_tgt_base</span> <span class="o">=</span> <span class="n">u_tgt</span>
+
+        <span class="n">intersection</span> <span class="o">=</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int64_t&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">u_tgt_vmap</span> <span class="o">=</span> <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span>
+        <span class="n">vmap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="n">vmap</span><span class="p">[</span><span class="n">u_tgt_vmap</span><span class="p">[</span><span class="n">v</span><span class="p">]]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="n">u_src_vmap</span> <span class="o">=</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">u_src_vmap</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">vmap</span><span class="p">:</span>
+                <span class="n">intersection</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">vmap</span><span class="p">[</span><span class="n">w</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_edge_blocks</span><span class="p">()</span>
+            <span class="n">u_src_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_edge_blocks</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">b</span>
+            <span class="n">u_src_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">b</span>
+
+        <span class="n">tgt_bmap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">src_rbmap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">r_max</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+                <span class="n">tgt_bmap</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+                <span class="n">r_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">r_max</span><span class="p">,</span> <span class="n">tgt_bmap</span><span class="p">[</span><span class="n">r</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+                <span class="n">src_rbmap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">)]</span> <span class="o">=</span> <span class="n">r</span>
+
+        <span class="n">r_missing</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">r_max</span><span class="p">))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">tgt_bmap</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">r_max</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+                <span class="n">nb</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[</span><span class="n">e</span><span class="p">]:</span>
+                    <span class="n">nb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">src_rbmap</span><span class="p">[</span><span class="n">r</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">tgt_bmap</span><span class="p">:</span>
+                        <span class="n">nb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tgt_bmap</span><span class="p">[</span><span class="n">r</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_missing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">rr</span> <span class="o">=</span> <span class="n">r_missing</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="k">del</span> <span class="n">r_missing</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">rr</span> <span class="o">=</span> <span class="n">r_max</span>
+                            <span class="n">r_max</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">rr</span><span class="p">)</span>
+                        <span class="n">nb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rr</span>
+                        <span class="n">tgt_bmap</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">rr</span>
+                <span class="n">b</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">nb</span>
+            <span class="n">b_src</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="n">b_tgt</span> <span class="o">=</span> <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span>
+            <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">u_src_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">u_src_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">src_rbmap</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="n">v</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">tgt_bmap</span><span class="p">:</span>
+                    <span class="n">b</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">tgt_bmap</span><span class="p">[</span><span class="n">r</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r_missing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">rr</span> <span class="o">=</span> <span class="n">r_missing</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">del</span> <span class="n">r_missing</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">rr</span> <span class="o">=</span> <span class="n">r_max</span>
+                        <span class="n">r_max</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">rr</span><span class="p">)</span>
+                    <span class="n">b</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">rr</span>
+                    <span class="n">tgt_bmap</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">rr</span>
+            <span class="n">b_src</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="n">b_tgt</span> <span class="o">=</span> <span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span>
+
+        <span class="n">props</span> <span class="o">=</span> <span class="p">[(</span><span class="n">b_tgt</span><span class="p">,</span> <span class="n">b_src</span><span class="p">),</span>
+                 <span class="p">(</span><span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">],</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]),</span>
+                 <span class="p">(</span><span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">],</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]),</span>
+                 <span class="p">(</span><span class="n">u_tgt_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">],</span> <span class="n">u_src_base</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">])]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">props</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u_tgt_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;brmap&quot;</span><span class="p">],</span>
+                          <span class="n">u_src_base</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;brmap&quot;</span><span class="p">]))</span>
+
+        <span class="n">u</span><span class="p">,</span> <span class="n">props</span> <span class="o">=</span> <span class="n">graph_union</span><span class="p">(</span><span class="n">u_tgt_base</span><span class="p">,</span> <span class="n">u_src_base</span><span class="p">,</span>
+                               <span class="n">intersection</span><span class="o">=</span><span class="n">intersection</span><span class="p">,</span>
+                               <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
+                               <span class="n">include</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;brmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+        <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">node_index</span><span class="p">,</span> <span class="n">half_edges</span><span class="p">,</span> <span class="n">eindex</span> <span class="o">=</span> <span class="n">half_edge_graph</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">],</span>
+                                                                   <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;vmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_index</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_tgt</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_tgt</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_tgt</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__gen_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_tgt</span><span class="p">])</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_src</span><span class="p">]</span>
+
+        <span class="n">old_ec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">l_src</span><span class="p">]</span> <span class="o">=</span> <span class="n">l_tgt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">l_src</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">old_base_ec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">l_src</span><span class="p">]</span> <span class="o">=</span> <span class="n">l_tgt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span><span class="o">.</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">l_src</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="n">old_bmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span><span class="o">.</span><span class="n">del_c</span><span class="p">(</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__bg</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">old_layer_entropy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">yield</span>
+
+        <span class="k">if</span> <span class="n">revert</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">l_src</span><span class="p">,</span> <span class="n">u_src</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">[</span><span class="n">l_tgt</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_tgt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">l_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s_src</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">l_tgt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">s_tgt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">a</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">old_ec</span><span class="o">.</span><span class="n">a</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span><span class="o">.</span><span class="n">a</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">old_base_ec</span><span class="o">.</span><span class="n">a</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bmap</span> <span class="o">=</span> <span class="n">old_bmap</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span> <span class="o">=</span> <span class="n">old_layer_entropy</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+                     <span class="n">ec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span>
+                     <span class="n">layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">,</span>
+                     <span class="n">eweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">,</span>
+                     <span class="n">vweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vweight</span><span class="p">,</span>
+                     <span class="n">b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span>
+                     <span class="n">B</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span>
+                     <span class="n">clabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="p">,</span>
+                     <span class="n">deg_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+<div class="viewcode-block" id="CovariateBlockState.copy"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">deg_corr</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">overlap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+             <span class="n">layers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Copies the block state. The parameters override the state properties, and</span>
+<span class="sd">         have the same meaning as in the constructor.&quot;&quot;&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">CovariateBlockState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+                                    <span class="n">ec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="k">if</span> <span class="n">ec</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">ec</span><span class="p">,</span>
+                                    <span class="n">eweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">,</span>
+                                    <span class="n">vweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vweight</span><span class="p">,</span>
+                                    <span class="n">b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">b</span><span class="p">,</span>
+                                    <span class="n">B</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">B</span><span class="p">,</span>
+                                    <span class="n">clabel</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="o">.</span><span class="n">a</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">clabel</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">clabel</span><span class="p">,</span>
+                                    <span class="n">deg_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="k">if</span> <span class="n">deg_corr</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">deg_corr</span><span class="p">,</span>
+                                    <span class="n">overlap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">if</span> <span class="n">overlap</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">overlap</span><span class="p">,</span>
+                                    <span class="n">layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="k">if</span> <span class="n">layers</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">layers</span><span class="p">,</span>
+                                    <span class="n">base_g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">half_edges</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">half_edges</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">node_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">node_index</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">eindex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">eindex</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">ec_done</span><span class="o">=</span><span class="n">ec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">state</span><span class="o">.</span><span class="n">_BlockState__check_clabel</span><span class="p">():</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">a</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">clabel</span><span class="o">.</span><span class="n">a</span> <span class="o">*</span> <span class="n">state</span><span class="o">.</span><span class="n">B</span>
+            <span class="n">continuous_map</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">_BlockState__check_clabel</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">state</span>
+</div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;CovariateBlockState object with </span><span class="si">%d</span><span class="s"> </span><span class="si">%s</span><span class="s">blocks, </span><span class="si">%d</span><span class="s"> </span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s"> for graph </span><span class="si">%s</span><span class="s">, at 0x</span><span class="si">%x</span><span class="s">&gt;&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="s">&quot;overlapping &quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">,</span> <span class="s">&quot;layers&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="k">else</span> <span class="s">&quot;edge covariates&quot;</span><span class="p">,</span>
+             <span class="s">&quot; degree corrected,&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="CovariateBlockState.get_bclabel"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.get_bclabel">[docs]</a>    <span class="k">def</span> <span class="nf">get_bclabel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns a :class:`~graph_tool.PropertyMap`` corresponding to constraint</span>
+<span class="sd">        labels for the block graph.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">get_bclabel</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="CovariateBlockState.get_bg"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.get_bg">[docs]</a>    <span class="k">def</span> <span class="nf">get_bg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns the block graph.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__mrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bec</span>
+        <span class="n">bg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">())</span>
+        <span class="n">mrs</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">ec</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">):</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">GraphView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="n">efilt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">l</span><span class="p">)</span>
+            <span class="n">ug</span> <span class="o">=</span> <span class="n">get_block_graph</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vweight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">)</span>
+            <span class="n">uec</span> <span class="o">=</span> <span class="n">ug</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="n">uec</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">l</span>
+            <span class="n">bg</span><span class="p">,</span> <span class="n">props</span> <span class="o">=</span> <span class="n">graph_union</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span> <span class="n">ug</span><span class="p">,</span>
+                                    <span class="n">props</span><span class="o">=</span><span class="p">[(</span><span class="n">mrs</span><span class="p">,</span> <span class="n">ug</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">]),</span>
+                                           <span class="p">(</span><span class="n">ec</span><span class="p">,</span> <span class="n">uec</span><span class="p">)],</span>
+                                    <span class="n">intersection</span><span class="o">=</span><span class="n">ug</span><span class="o">.</span><span class="n">vertex_index</span><span class="p">,</span>
+                                    <span class="n">include</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">mrs</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ec</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__bg</span> <span class="o">=</span> <span class="n">bg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__mrs</span> <span class="o">=</span> <span class="n">mrs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__bec</span> <span class="o">=</span> <span class="n">ec</span>
+        <span class="k">return</span> <span class="n">bg</span><span class="p">,</span> <span class="n">mrs</span><span class="p">,</span> <span class="n">ec</span>
+</div>
+    <span class="n">bg</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bg</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">mrs</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bg</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">bec</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bg</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+
+<div class="viewcode-block" id="CovariateBlockState.get_block_state"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.get_block_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_block_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vweight</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">deg_corr</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                        <span class="n">overlap</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns a :class:`~graph_tool.community.CovariateBlockState`` corresponding</span>
+<span class="sd">        to the block graph. The parameters have the same meaning as the in the</span>
+<span class="sd">        constructor.&quot;&quot;&quot;</span>
+
+        <span class="n">bg</span><span class="p">,</span> <span class="n">mrs</span><span class="p">,</span> <span class="n">ec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bg</span><span class="p">()</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">CovariateBlockState</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span> <span class="n">ec</span><span class="p">,</span> <span class="n">eweight</span><span class="o">=</span><span class="n">mrs</span><span class="p">,</span>
+                                    <span class="n">vweight</span><span class="o">=</span><span class="n">bg</span><span class="o">.</span><span class="n">own_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wr</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span> <span class="k">if</span> <span class="n">vweight</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">b</span><span class="o">=</span><span class="n">bg</span><span class="o">.</span><span class="n">vertex_index</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">b</span><span class="p">,</span>
+                                    <span class="n">clabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bclabel</span><span class="p">(),</span>
+                                    <span class="n">deg_corr</span><span class="o">=</span><span class="n">deg_corr</span><span class="p">,</span>
+                                    <span class="n">overlap</span><span class="o">=</span><span class="n">overlap</span><span class="p">,</span>
+                                    <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">,</span>
+                                    <span class="n">layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="k">if</span> <span class="n">layers</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">layers</span><span class="p">,</span>
+                                    <span class="n">ec_done</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">n_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">state</span><span class="p">,</span> <span class="n">n_map</span>
+
+</div>
+<div class="viewcode-block" id="CovariateBlockState.get_edge_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.get_edge_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_edge_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns an edge property map which contains the block labels pairs for each</span>
+<span class="sd">        edge.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;edge blocks only available if overlap == True&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">get_edge_blocks</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="CovariateBlockState.get_overlap_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.get_overlap_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_overlap_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns the mixed membership of each vertex.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bv : :class:`PropertyMap`</span>
+<span class="sd">           A vector-valued vertex property map containing the block memberships</span>
+<span class="sd">           of each node.</span>
+<span class="sd">        bc_in : :class:`PropertyMap`</span>
+<span class="sd">           The labelled in-degrees of each node, i.e. how many in-edges belong</span>
+<span class="sd">           to each group, in the same order as the ``bv`` property above.</span>
+<span class="sd">        bc_out : :class:`PropertyMap`</span>
+<span class="sd">           The labelled out-degrees of each node, i.e. how many out-edges belong</span>
+<span class="sd">           to each group, in the same order as the ``bv`` property above.</span>
+<span class="sd">        bc_total : :class:`PropertyMap`</span>
+<span class="sd">           The labelled total degrees of each node, i.e. how many incident edges</span>
+<span class="sd">           belong to each group, in the same order as the ``bv`` property above.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;overlap blocks only available if overlap == True&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">get_overlap_blocks</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="CovariateBlockState.get_nonoverlap_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.get_nonoverlap_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_nonoverlap_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns a scalar-valued vertex property map with the block mixture</span>
+<span class="sd">        represented as a single number.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">get_nonoverlap_blocks</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="CovariateBlockState.get_majority_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.get_majority_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_majority_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns a scalar-valued vertex property map with the majority block</span>
+<span class="sd">        membership of each node.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">get_majority_blocks</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">__get_layer_entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+                <span class="c"># we need to include the membership of the nodes in each layer</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
+                <span class="n">ec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_ec</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span>
+                <span class="n">be</span> <span class="o">=</span> <span class="n">group_vector_property</span><span class="p">([</span><span class="n">ec</span><span class="p">,</span> <span class="n">ec</span><span class="p">])</span>
+                <span class="n">lstate</span> <span class="o">=</span> <span class="n">OverlapBlockState</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">be</span><span class="p">,</span> <span class="n">deg_corr</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span> <span class="o">=</span> <span class="n">lstate</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">edges_dl</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="o">-</span> <span class="n">lstate</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">dl</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__layer_entropy</span>
+
+<div class="viewcode-block" id="CovariateBlockState.entropy"><a class="viewcode-back" href="../../../community.html#graph_tool.community.CovariateBlockState.entropy">[docs]</a>    <span class="k">def</span> <span class="nf">entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complete</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">partition_dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">edges_dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                <span class="n">degree_dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">dense</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                <span class="n">dl_ent</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Calculate the entropy associated with the current block partition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        complete : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the complete entropy will be returned, including constant</span>
+<span class="sd">            terms not relevant to the block partition.</span>
+<span class="sd">        dl : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the full description length will be returned.</span>
+<span class="sd">        partition_dl : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, and ``dl == True`` the partition description length</span>
+<span class="sd">            will be considered.</span>
+<span class="sd">        edges_dl : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, and ``dl == True`` the edge matrix description length</span>
+<span class="sd">            will be considered.</span>
+<span class="sd">        degree_dl : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, and ``dl == True`` the degree sequence description</span>
+<span class="sd">            length will be considered.</span>
+<span class="sd">        dense : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the &quot;dense&quot; variant of the entropy will be computed.</span>
+<span class="sd">        multigraph : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the multigraph entropy will be used.</span>
+<span class="sd">        norm : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, the entropy will be &quot;normalized&quot; by dividing by the</span>
+<span class="sd">            number of edges.</span>
+<span class="sd">        dl_ent : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the description length of the degree sequence will be</span>
+<span class="sd">            approximated by its entropy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">S</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dl</span> <span class="ow">and</span> <span class="n">partition_dl</span><span class="p">:</span>
+                <span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">partition_dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                                              <span class="n">degree_dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">edges_dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                              <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="o">-</span> \
+                     <span class="bp">self</span><span class="o">.</span><span class="n">total_state</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">S</span> <span class="o">+=</span> <span class="n">state</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="n">complete</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="n">dl</span><span class="p">,</span> <span class="n">partition_dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                   <span class="n">edges_dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">degree_dl</span><span class="o">=</span><span class="n">degree_dl</span><span class="p">,</span>
+                                   <span class="n">dense</span><span class="o">=</span><span class="n">dense</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="n">multigraph</span><span class="p">,</span>
+                                   <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dl_ent</span><span class="o">=</span><span class="n">dl_ent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">S</span> <span class="o">+=</span> <span class="n">state</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="n">complete</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="n">dl</span><span class="p">,</span>
+                                       <span class="n">partition_dl</span><span class="o">=</span><span class="n">partition_dl</span><span class="p">,</span>
+                                       <span class="n">edges_dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">degree_dl</span><span class="o">=</span><span class="n">degree_dl</span><span class="p">,</span>
+                                       <span class="n">dense</span><span class="o">=</span><span class="n">dense</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="n">multigraph</span><span class="p">,</span>
+                                       <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dl_ent</span><span class="o">=</span><span class="n">dl_ent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">S</span> <span class="o">-=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">covariate_entropy</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                        <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span>
+                                                              <span class="n">state</span><span class="o">.</span><span class="n">mrs</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">multigraph</span><span class="p">:</span>
+                        <span class="n">S</span> <span class="o">-=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">entropy_parallel</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                           <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+                                                                 <span class="n">state</span><span class="o">.</span><span class="n">eweight</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">S</span> <span class="o">+=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">covariate_entropy</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                        <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span>
+                                                              <span class="n">state</span><span class="o">.</span><span class="n">mrs</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">multigraph</span><span class="p">:</span>
+                        <span class="n">S</span> <span class="o">+=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">entropy_parallel</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                           <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+                                                                 <span class="n">state</span><span class="o">.</span><span class="n">eweight</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">dl</span> <span class="ow">and</span> <span class="n">edges_dl</span><span class="p">:</span>
+            <span class="n">bstate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_block_state</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">),</span> <span class="n">layers</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">S</span> <span class="o">+=</span> <span class="n">bstate</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="n">dense</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dl</span><span class="p">:</span>
+            <span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_layer_entropy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
+            <span class="n">S</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">E</span>
+        <span class="k">return</span> <span class="n">S</span>
+</div></div>
+<span class="k">def</span> <span class="nf">init_layer_confined</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ec</span><span class="p">):</span>
+    <span class="n">tmp_state</span> <span class="o">=</span> <span class="n">CovariateBlockState</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="n">ec</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span>
+    <span class="n">tmp_state</span> <span class="o">=</span> <span class="n">tmp_state</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">overlap</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">be</span> <span class="o">=</span> <span class="n">tmp_state</span><span class="o">.</span><span class="n">get_edge_blocks</span><span class="p">()</span>
+    <span class="n">ba</span> <span class="o">=</span> <span class="n">ungroup_vector_property</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ba</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">ba</span><span class="o">.</span><span class="n">a</span> <span class="o">+</span> <span class="n">ec</span><span class="o">.</span><span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="n">ba</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">continuous_map</span><span class="p">(</span><span class="n">ba</span><span class="p">)</span>
+    <span class="n">be</span> <span class="o">=</span> <span class="n">group_vector_property</span><span class="p">([</span><span class="n">ba</span><span class="p">,</span> <span class="n">ba</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">be</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../../graph_tool.html" >graph_tool</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="../community.html" >graph_tool.community</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

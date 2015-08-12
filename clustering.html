@@ -1,0 +1,635 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>graph_tool.clustering - Clustering coefficients &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="index.html" />
+    <link rel="up" title="graph_tool - efficient graph analysis and manipulation" href="graph_tool.html" />
+    <link rel="next" title="graph_tool.collection - Dataset collection" href="collection.html" />
+    <link rel="prev" title="graph_tool.centrality - Centrality measures" href="centrality.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="collection.html" title="graph_tool.collection - Dataset collection"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="centrality.html" title="graph_tool.centrality - Centrality measures"
+             accesskey="P">previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="modules.html" >Module documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="graph_tool.html" accesskey="U">graph_tool - efficient graph analysis and manipulation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-graph_tool.clustering"></span><div class="section" id="graph-tool-clustering-clustering-coefficients">
+<h1><code class="docutils literal"><span class="pre">graph_tool.clustering</span></code> - Clustering coefficients<a class="headerlink" href="#graph-tool-clustering-clustering-coefficients" title="Permalink to this headline">¶</a></h1>
+<p>Provides algorithms for calculation of clustering coefficients,
+aka. transitivity.</p>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.clustering.local_clustering" title="graph_tool.clustering.local_clustering"><code class="xref py py-obj docutils literal"><span class="pre">local_clustering</span></code></a></td>
+<td>Return the local clustering coefficients for all vertices.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.clustering.global_clustering" title="graph_tool.clustering.global_clustering"><code class="xref py py-obj docutils literal"><span class="pre">global_clustering</span></code></a></td>
+<td>Return the global clustering coefficient.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.clustering.extended_clustering" title="graph_tool.clustering.extended_clustering"><code class="xref py py-obj docutils literal"><span class="pre">extended_clustering</span></code></a></td>
+<td>Return the extended clustering coefficients for all vertices.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#graph_tool.clustering.motifs" title="graph_tool.clustering.motifs"><code class="xref py py-obj docutils literal"><span class="pre">motifs</span></code></a></td>
+<td>Count the occurrence of k-size node-induced subgraphs (motifs).</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.clustering.motif_significance" title="graph_tool.clustering.motif_significance"><code class="xref py py-obj docutils literal"><span class="pre">motif_significance</span></code></a></td>
+<td>Obtain the motif significance profile, for subgraphs with k vertices.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="graph_tool.clustering.local_clustering">
+<code class="descclassname">graph_tool.clustering.</code><code class="descname">local_clustering</code><span class="sig-paren">(</span><em>g</em>, <em>prop=None</em>, <em>undirected=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/clustering.html#local_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.clustering.local_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the local clustering coefficients for all vertices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>prop</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> or string, optional</p>
+<blockquote>
+<div><p>Vertex property map where results will be stored. If specified, this
+parameter will also be the return value.</p>
+</div></blockquote>
+<p><strong>undirected</strong> : bool (default: True)</p>
+<blockquote>
+<div><p>Calculate the <em>undirected</em> clustering coefficient, if graph is directed
+(this option has no effect if the graph is undirected).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>prop</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a></p>
+<blockquote class="last">
+<div><p>Vertex property containing the clustering coefficients.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#graph_tool.clustering.global_clustering" title="graph_tool.clustering.global_clustering"><code class="xref py py-obj docutils literal"><span class="pre">global_clustering</span></code></a></dt>
+<dd>global clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.extended_clustering" title="graph_tool.clustering.extended_clustering"><code class="xref py py-obj docutils literal"><span class="pre">extended_clustering</span></code></a></dt>
+<dd>extended (generalized) clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.motifs" title="graph_tool.clustering.motifs"><code class="xref py py-obj docutils literal"><span class="pre">motifs</span></code></a></dt>
+<dd>motif counting</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The local clustering coefficient <a class="reference internal" href="#watts-collective-1998" id="id1">[watts-collective-1998]</a> <span class="math">\(c_i\)</span> is
+defined as</p>
+<div class="math">
+\[c_i = \frac{|\{e_{jk}\}|}{k_i(k_i-1)} :\, v_j,v_k \in N_i,\, e_{jk} \in E\]</div>
+<p>where <span class="math">\(k_i\)</span> is the out-degree of vertex <span class="math">\(i\)</span>, and</p>
+<div class="math">
+\[N_i = \{v_j : e_{ij} \in E\}\]</div>
+<p>is the set of out-neighbours of vertex <span class="math">\(i\)</span>. For undirected graphs the
+value of <span class="math">\(c_i\)</span> is normalized as</p>
+<div class="math">
+\[c'_i = 2c_i.\]</div>
+<p>The implemented algorithm runs in <span class="math">\(O(|V|\left&lt; k\right&gt;^3)\)</span> time,
+where <span class="math">\(\left&lt; k\right&gt;\)</span> is the average out-degree.</p>
+<p>If enabled during compilation, this algorithm runs in parallel.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="watts-collective-1998" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[watts-collective-1998]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> D. J. Watts and Steven Strogatz, &#8220;Collective
+dynamics of &#8216;small-world&#8217; networks&#8221;, Nature, vol. 393, pp 440-442, 1998.
+<a class="reference external" href="http://dx.doi.org/10.1038/30918">DOI: 10.1038/30918</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clust</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">local_clustering</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">vertex_average</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">clust</span><span class="p">))</span>
+<span class="go">(0.006177777777777778, 0.0003696618407994121)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.clustering.global_clustering">
+<code class="descclassname">graph_tool.clustering.</code><code class="descname">global_clustering</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/clustering.html#global_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.clustering.global_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the global clustering coefficient.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>c</strong> : tuple of floats</p>
+<blockquote class="last">
+<div><p>Global clustering coefficient and standard deviation (jacknife method)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#graph_tool.clustering.local_clustering" title="graph_tool.clustering.local_clustering"><code class="xref py py-obj docutils literal"><span class="pre">local_clustering</span></code></a></dt>
+<dd>local clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.extended_clustering" title="graph_tool.clustering.extended_clustering"><code class="xref py py-obj docutils literal"><span class="pre">extended_clustering</span></code></a></dt>
+<dd>extended (generalized) clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.motifs" title="graph_tool.clustering.motifs"><code class="xref py py-obj docutils literal"><span class="pre">motifs</span></code></a></dt>
+<dd>motif counting</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The global clustering coefficient <a class="reference internal" href="#newman-structure-2003" id="id3">[newman-structure-2003]</a> <span class="math">\(c\)</span> is
+defined as</p>
+<div class="math">
+\[c = 3 \times \frac{\text{number of triangles}}
+                   {\text{number of connected triples}}\]</div>
+<p>The implemented algorithm runs in <span class="math">\(O(|V|\left&lt; k\right&gt;^3)\)</span> time,
+where <span class="math">\(\left&lt; k\right&gt;\)</span> is the average (total) degree.</p>
+<p>If enabled during compilation, this algorithm runs in parallel.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="newman-structure-2003" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[newman-structure-2003]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> M. E. J. Newman, &#8220;The structure and function of
+complex networks&#8221;, SIAM Review, vol. 45, pp. 167-256, 2003,
+<a class="reference external" href="http://dx.doi.org/10.1137/S003614450342480">DOI: 10.1137/S003614450342480</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">global_clustering</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
+<span class="go">(0.006177777777777778, 0.0003700318726720911)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.clustering.extended_clustering">
+<code class="descclassname">graph_tool.clustering.</code><code class="descname">extended_clustering</code><span class="sig-paren">(</span><em>g</em>, <em>props=None</em>, <em>max_depth=3</em>, <em>undirected=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/clustering.html#extended_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.clustering.extended_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the extended clustering coefficients for all vertices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>props</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> objects, optional</p>
+<blockquote>
+<div><p>list of vertex property maps where results will be stored. If specified,
+this parameter will also be the return value.</p>
+</div></blockquote>
+<p><strong>max_depth</strong> : int, optional</p>
+<blockquote>
+<div><p>Maximum clustering order (default: 3).</p>
+</div></blockquote>
+<p><strong>undirected</strong> : bool, optional</p>
+<blockquote>
+<div><p>Calculate the <em>undirected</em> clustering coefficients, if graph is directed
+(this option has no effect if the graph is undirected).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>prop</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> objects</p>
+<blockquote class="last">
+<div><p>List of vertex properties containing the clustering coefficients.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#graph_tool.clustering.local_clustering" title="graph_tool.clustering.local_clustering"><code class="xref py py-obj docutils literal"><span class="pre">local_clustering</span></code></a></dt>
+<dd>local clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.global_clustering" title="graph_tool.clustering.global_clustering"><code class="xref py py-obj docutils literal"><span class="pre">global_clustering</span></code></a></dt>
+<dd>global clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.motifs" title="graph_tool.clustering.motifs"><code class="xref py py-obj docutils literal"><span class="pre">motifs</span></code></a></dt>
+<dd>motif counting</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The extended clustering coefficient <span class="math">\(c^d_i\)</span> of order <span class="math">\(d\)</span> is
+defined as</p>
+<div class="math">
+\[c^d_i = \frac{\left|\right\{ \{u,v\}; u,v \in N_i | d_{G(V\setminus
+\{i\})}(u,v) = d \left\}\right|}{{\left|N_i\right| \choose 2}},\]</div>
+<p>where <span class="math">\(d_G(u,v)\)</span> is the shortest distance from vertex <span class="math">\(u\)</span> to
+<span class="math">\(v\)</span> in graph <span class="math">\(G\)</span>, and</p>
+<div class="math">
+\[N_i = \{v_j : e_{ij} \in E\}\]</div>
+<p>is the set of out-neighbours of <span class="math">\(i\)</span>. According to the above
+definition, we have that the traditional local clustering coefficient is
+recovered for <span class="math">\(d=1\)</span>, i.e., <span class="math">\(c^1_i = c_i\)</span>.</p>
+<p>The implemented algorithm runs in
+<span class="math">\(O(|V|\left&lt;k\right&gt;^{2+\text{max-depth}})\)</span> worst time, where
+<span class="math">\(\left&lt; k\right&gt;\)</span> is the average out-degree.</p>
+<p>If enabled during compilation, this algorithm runs in parallel.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="abdo-clustering" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[abdo-clustering]</a></td><td>A. H. Abdo, A. P. S. de Moura, &#8220;Clustering as a
+measure of the local topology of networks&#8221;, <a class="reference external" href="http://arxiv.org/abs/physics/0605235">arXiv: physics/0605235</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clusts</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">extended_clustering</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="k">print</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">vertex_average</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">clusts</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+<span class="gp">...</span>
+<span class="go">(0.00421, 0.00041685103920811916)</span>
+<span class="go">(0.027226666666666666, 0.0010073522830778825)</span>
+<span class="go">(0.11549166666666667, 0.002081399085417734)</span>
+<span class="go">(0.41280666666666666, 0.0029479221231987185)</span>
+<span class="go">(0.4205716666666666, 0.003156465741141506)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.clustering.motifs">
+<code class="descclassname">graph_tool.clustering.</code><code class="descname">motifs</code><span class="sig-paren">(</span><em>g</em>, <em>k</em>, <em>p=1.0</em>, <em>motif_list=None</em>, <em>return_maps=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/clustering.html#motifs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.clustering.motifs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the occurrence of k-size node-induced subgraphs (motifs). A tuple with
+two lists is returned: the list of motifs found, and the list with their
+respective counts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>k</strong> : int</p>
+<blockquote>
+<div><p>number of vertices of the motifs</p>
+</div></blockquote>
+<p><strong>p</strong> : float or float list (optional, default: <cite>1.0</cite>)</p>
+<blockquote>
+<div><p>uniform fraction of the motifs to be sampled. If a float list is
+provided, it will be used as the fraction at each depth
+<span class="math">\([1,\dots,k]\)</span> in the algorithm. See <a class="reference internal" href="#wernicke-efficient-2006" id="id6">[wernicke-efficient-2006]</a> for
+more details.</p>
+</div></blockquote>
+<p><strong>motif_list</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a> objects, optional</p>
+<blockquote>
+<div><p>If supplied, the algorithms will only search for the motifs in this list
+(or isomorphisms).</p>
+</div></blockquote>
+<p><strong>return_maps</strong> : bool (optional, default <cite>False</cite>)</p>
+<blockquote>
+<div><p>If <code class="docutils literal"><span class="pre">True</span></code>, a list will be returned, which provides for each motif graph a
+list of vertex property maps which map the motif to its location in the
+main graph.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>motifs</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a> objects</p>
+<blockquote>
+<div><p>List of motifs of size k found in the Graph. Graphs are grouped
+according to their isomorphism class, and only one of each class appears
+in this list. The list is sorted according to in-degree sequence,
+out-degree-sequence, and number of edges (in this order).</p>
+</div></blockquote>
+<p><strong>counts</strong> : list of ints</p>
+<blockquote>
+<div><p>The number of times the respective motif in the motifs list was counted</p>
+</div></blockquote>
+<p><strong>vertex_maps</strong> : list of lists of <a class="reference internal" href="graph_tool.html#graph_tool.PropertyMap" title="graph_tool.PropertyMap"><code class="xref py py-class docutils literal"><span class="pre">PropertyMap</span></code></a> objects</p>
+<blockquote class="last">
+<div><p>List for each motif graph containing the locations in the main
+graph. This is only returned if <cite>return_maps == True</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#graph_tool.clustering.motif_significance" title="graph_tool.clustering.motif_significance"><code class="xref py py-obj docutils literal"><span class="pre">motif_significance</span></code></a></dt>
+<dd>significance profile of motifs</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.local_clustering" title="graph_tool.clustering.local_clustering"><code class="xref py py-obj docutils literal"><span class="pre">local_clustering</span></code></a></dt>
+<dd>local clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.global_clustering" title="graph_tool.clustering.global_clustering"><code class="xref py py-obj docutils literal"><span class="pre">global_clustering</span></code></a></dt>
+<dd>global clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.extended_clustering" title="graph_tool.clustering.extended_clustering"><code class="xref py py-obj docutils literal"><span class="pre">extended_clustering</span></code></a></dt>
+<dd>extended (generalized) clustering coefficient</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>This functions implements the ESU and RAND-ESU algorithms described in
+<a class="reference internal" href="#wernicke-efficient-2006" id="id7">[wernicke-efficient-2006]</a>.</p>
+<p>If enabled during compilation, this algorithm runs in parallel.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="wernicke-efficient-2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[wernicke-efficient-2006]</td><td><em>(<a class="fn-backref" href="#id6">1</a>, <a class="fn-backref" href="#id7">2</a>, <a class="fn-backref" href="#id8">3</a>, <a class="fn-backref" href="#id10">4</a>)</em> S. Wernicke, &#8220;Efficient detection of network
+motifs&#8221;, IEEE/ACM Transactions on Computational Biology and
+Bioinformatics (TCBB), Volume 3, Issue 4, Pages 347-359, 2006.
+<a class="reference external" href="http://dx.doi.org/10.1109/TCBB.2006.51">DOI: 10.1109/TCBB.2006.51</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="induced-subgraph-isomorphism" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id9">[induced-subgraph-isomorphism]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Induced_subgraph_isomorphism_problem">http://en.wikipedia.org/wiki/Induced_subgraph_isomorphism_problem</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">motifs</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">motifs</span><span class="p">(</span><span class="n">gt</span><span class="o">.</span><span class="n">GraphView</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">motifs</span><span class="p">))</span>
+<span class="go">52</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+<span class="go">[29259, 29111, 28420, 28618, 163659, 96696, 96821, 31366, 295, 162, 185, 257, 58, 74, 562, 300, 80, 240, 273, 112, 379, 167, 329, 536, 605, 641, 176, 540, 340, 317, 298, 87, 306, 275, 252, 9, 3, 11, 5, 9, 7, 2, 2, 1, 3, 1, 2, 1, 2, 1, 1, 1]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="graph_tool.clustering.motif_significance">
+<code class="descclassname">graph_tool.clustering.</code><code class="descname">motif_significance</code><span class="sig-paren">(</span><em>g</em>, <em>k</em>, <em>n_shuffles=100</em>, <em>p=1.0</em>, <em>motif_list=None</em>, <em>threshold=0</em>, <em>self_loops=False</em>, <em>parallel_edges=False</em>, <em>full_output=False</em>, <em>shuffle_model='uncorrelated'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/clustering.html#motif_significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.clustering.motif_significance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the motif significance profile, for subgraphs with k vertices. A
+tuple with two lists is returned: the list of motifs found, and their
+respective z-scores.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>g</strong> : <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a></p>
+<blockquote>
+<div><p>Graph to be used.</p>
+</div></blockquote>
+<p><strong>k</strong> : int</p>
+<blockquote>
+<div><p>Number of vertices of the motifs</p>
+</div></blockquote>
+<p><strong>n_shuffles</strong> : int (optional, default: 100)</p>
+<blockquote>
+<div><p>Number of shuffled networks to consider for the z-score</p>
+</div></blockquote>
+<p><strong>p</strong> : float or float list (optional, default: 1.0)</p>
+<blockquote>
+<div><p>Uniform fraction of the motifs to be sampled. If a float list is
+provided, it will be used as the fraction at each depth
+<span class="math">\([1,\dots,k]\)</span> in the algorithm. See <a class="reference internal" href="#wernicke-efficient-2006" id="id10">[wernicke-efficient-2006]</a> for
+more details.</p>
+</div></blockquote>
+<p><strong>motif_list</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a> objects (optional, default: None)</p>
+<blockquote>
+<div><p>If supplied, the algorithms will only search for the motifs in this list
+(isomorphisms)</p>
+</div></blockquote>
+<p><strong>threshold</strong> : int (optional, default: 0)</p>
+<blockquote>
+<div><p>If a given motif count is below this level, it is not considered.</p>
+</div></blockquote>
+<p><strong>self_loops</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>Whether or not the shuffled graphs are allowed to contain self-loops</p>
+</div></blockquote>
+<p><strong>parallel_edges</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>Whether or not the shuffled graphs are allowed to contain parallel
+edges.</p>
+</div></blockquote>
+<p><strong>full_output</strong> : bool (optional, default: False)</p>
+<blockquote>
+<div><p>If set to True, three additional lists are returned: the count
+of each motif, the average count of each motif in the shuffled networks,
+and the standard deviation of the average count of each motif in the
+shuffled networks.</p>
+</div></blockquote>
+<p><strong>shuffle_model</strong> : string (optional, default: &#8220;uncorrelated&#8221;)</p>
+<blockquote>
+<div><p>Shuffle model to use. See <a class="reference internal" href="generation.html#graph_tool.generation.random_rewire" title="graph_tool.generation.random_rewire"><code class="xref py py-func docutils literal"><span class="pre">random_rewire()</span></code></a>
+for details.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>motifs</strong> : list of <a class="reference internal" href="graph_tool.html#graph_tool.Graph" title="graph_tool.Graph"><code class="xref py py-class docutils literal"><span class="pre">Graph</span></code></a> objects</p>
+<blockquote>
+<div><p>List of motifs of size k found in the Graph. Graphs are grouped
+according to their isomorphism class, and only one of each class appears
+in this list. The list is sorted according to in-degree sequence,
+out-degree-sequence, and number of edges (in this order).</p>
+</div></blockquote>
+<p><strong>z-scores</strong> : list of floats</p>
+<blockquote class="last">
+<div><p>The z-score of the respective motives. See below for the definition of
+the z-score.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#graph_tool.clustering.motifs" title="graph_tool.clustering.motifs"><code class="xref py py-obj docutils literal"><span class="pre">motifs</span></code></a></dt>
+<dd>motif counting or sampling</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.local_clustering" title="graph_tool.clustering.local_clustering"><code class="xref py py-obj docutils literal"><span class="pre">local_clustering</span></code></a></dt>
+<dd>local clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.global_clustering" title="graph_tool.clustering.global_clustering"><code class="xref py py-obj docutils literal"><span class="pre">global_clustering</span></code></a></dt>
+<dd>global clustering coefficient</dd>
+<dt><a class="reference internal" href="#graph_tool.clustering.extended_clustering" title="graph_tool.clustering.extended_clustering"><code class="xref py py-obj docutils literal"><span class="pre">extended_clustering</span></code></a></dt>
+<dd>extended (generalized) clustering coefficient</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The z-score <span class="math">\(z_i\)</span> of motif i is defined as</p>
+<div class="math">
+\[\begin{split}z_i = \frac{N_i - \left&lt;N^s_i\right&gt;}
+{\sqrt{\left&lt;(N^s_i)^2\right&gt; - \left&lt;N^s_i\right&gt;^2}},\end{split}\]</div>
+<p>where <span class="math">\(N_i\)</span> is the number of times motif i found, and <span class="math">\(N^s_i\)</span>
+is the count of the same motif but on a shuffled network. It measures how
+many standard deviations is each motif count, in respect to an ensemble of
+randomly shuffled graphs with the same degree sequence.</p>
+<p>The z-scores values are not normalized.</p>
+<p>If enabled during compilation, this algorithm runs in parallel.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">motifs</span><span class="p">,</span> <span class="n">zscores</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">motif_significance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">motifs</span><span class="p">))</span>
+<span class="go">11</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">zscores</span><span class="p">)</span>
+<span class="go">[0.04162670293683441, 0.046769781223679897, 0.55888261369689918, 0.82906624302416043, -0.41384527710386287, -0.42070845824900477, -1.3262411347517733, 1.82, -0.13, -0.37, -0.22]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">graph_tool.clustering</span></code> - Clustering coefficients</a><ul>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="centrality.html"
+                        title="previous chapter"><code class="docutils literal"><span class="pre">graph_tool.centrality</span></code> - Centrality measures</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="collection.html"
+                        title="next chapter"><code class="docutils literal"><span class="pre">graph_tool.collection</span></code> - Dataset collection</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/clustering.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="collection.html" title="graph_tool.collection - Dataset collection"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="centrality.html" title="graph_tool.centrality - Centrality measures"
+             >previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="modules.html" >Module documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="graph_tool.html" >graph_tool - efficient graph analysis and manipulation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>graph_tool.run_action - Inline C++ code embedding &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="index.html" />
+    <link rel="up" title="graph_tool - efficient graph analysis and manipulation" href="graph_tool.html" />
+    <link rel="next" title="graph_tool.search - Search algorithms" href="search_module.html" />
+    <link rel="prev" title="graph_tool.generation - Random graph generation" href="generation.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="search_module.html" title="graph_tool.search - Search algorithms"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="generation.html" title="graph_tool.generation - Random graph generation"
+             accesskey="P">previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="modules.html" >Module documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="graph_tool.html" accesskey="U">graph_tool - efficient graph analysis and manipulation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-graph_tool.run_action"></span><div class="section" id="graph-tool-run-action-inline-c-code-embedding">
+<h1><code class="docutils literal"><span class="pre">graph_tool.run_action</span></code> - Inline C++ code embedding<a class="headerlink" href="#graph-tool-run-action-inline-c-code-embedding" title="Permalink to this headline">¶</a></h1>
+<p>This module implements support for automatic ad-hoc code embedding into
+graph-tool.</p>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#graph_tool.run_action.inline" title="graph_tool.run_action.inline"><code class="xref py py-obj docutils literal"><span class="pre">inline</span></code></a></td>
+<td>Compile (if necessary) and run the C++ code specified by &#8216;code&#8217;, using <a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/weave.html#module-scipy.weave" title="(in SciPy v0.15.1)"><code class="xref py py-mod docutils literal"><span class="pre">weave</span></code></a>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="graph_tool.run_action.inline">
+<code class="descclassname">graph_tool.run_action.</code><code class="descname">inline</code><span class="sig-paren">(</span><em>code</em>, <em>arg_names=None</em>, <em>local_dict=None</em>, <em>global_dict=None</em>, <em>force=False</em>, <em>compiler='gcc'</em>, <em>verbose=False</em>, <em>auto_downcast=1</em>, <em>support_code=''</em>, <em>libraries=None</em>, <em>library_dirs=None</em>, <em>extra_compile_args=None</em>, <em>runtime_library_dirs=None</em>, <em>extra_objects=None</em>, <em>extra_link_args=None</em>, <em>mask_ret=None</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_tool/run_action/inline.html#inline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#graph_tool.run_action.inline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile (if necessary) and run the C++ code specified by &#8216;code&#8217;, using <a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/weave.html#module-scipy.weave" title="(in SciPy v0.15.1)"><code class="xref py py-mod docutils literal"><span class="pre">weave</span></code></a>.
+The (possibly modified) variables in &#8216;arg_names&#8217; are returned.</p>
+<p>See <a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.weave.inline.html#scipy.weave.inline" title="(in SciPy v0.15.1)"><code class="xref py py-func docutils literal"><span class="pre">scipy.weave.inline()</span></code></a> for detailed parameter documentation.</p>
+<p class="rubric">Notes</p>
+<p>Graphs and property maps are automatically converted to appropriate <a class="reference internal" href="#boost" id="id1">[Boost]</a>
+graph types. For convenience, the graph types are automatically typedef&#8217;d to
+<cite>${name}_graph_t</cite>, where ${name} is the graph&#8217;s variable name passed to
+<cite>arg_names</cite>. Property map types are typedef&#8217;d to <cite>vprop_${val_type}_t</cite>,
+<cite>eprop_${val_type}_t</cite> or <cite>gprop_${val_type}_t</cite>, for vertex, edge or graph
+properties, where ${val_type} specifies the value type (e.g. int, bool,
+double, etc.). In the case of vector types, the &#8220;&lt;&#8221; and &#8220;&gt;&#8221; symbols are
+replaced by underscores (&#8220;_&#8221;).</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="boost" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Boost]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> <a class="reference external" href="http://www.boost.org/libs/graph/doc/table_of_contents.html">http://www.boost.org/libs/graph/doc/table_of_contents.html</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="weave" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[Weave]</a></td><td><a class="reference external" href="http://www.scipy.org/Weave">http://www.scipy.org/Weave</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">seed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">random_graph</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nv</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">inline</span><span class="p">(</span><span class="s">&quot;nv = num_vertices(g);&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;g&#39;</span><span class="p">,</span> <span class="s">&#39;nv&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="s">&quot;nv&quot;</span><span class="p">])</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prop</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;vector&lt;double&gt;&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prop</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">val</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ret</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">inline</span><span class="p">(</span><span class="s">&quot;val = prop[vertex(0,g)][1];&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;g&#39;</span><span class="p">,</span> <span class="s">&#39;prop&#39;</span><span class="p">,</span> <span class="s">&#39;val&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="s">&quot;val&quot;</span><span class="p">])</span>
+<span class="go">4.2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">graph_tool.run_action</span></code> - Inline C++ code embedding</a><ul>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="generation.html"
+                        title="previous chapter"><code class="docutils literal"><span class="pre">graph_tool.generation</span></code> - Random graph generation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="search_module.html"
+                        title="next chapter"><code class="docutils literal"><span class="pre">graph_tool.search</span></code> - Search algorithms</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/run_action.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="search_module.html" title="graph_tool.search - Search algorithms"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="generation.html" title="graph_tool.generation - Random graph generation"
+             >previous</a> |</li>
+    <li><img src="_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="modules.html" >Module documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="graph_tool.html" >graph_tool - efficient graph analysis and manipulation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

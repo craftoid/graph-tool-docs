@@ -1,0 +1,904 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>graph_tool.community.overlap_blockmodel &mdash; graph-tool 2.2.44 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/gt_style.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.2.44',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/MathJax/MathJax.js?config=default"></script>
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Search within graph-tool 2.2.44 documentation"
+          href="../../../_static/opensearch.xml"/>
+    <link rel="shortcut icon" href="../../../_static/graph-icon.ico"/>
+    <link rel="top" title="graph-tool 2.2.44 documentation" href="../../../index.html" />
+    <link rel="up" title="graph_tool.community" href="../community.html" />
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      var pluginUrl =
+        '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+      _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+      _gaq.push(['_setAccount', 'UA-248813-2']);
+      _gaq.push(['_setDomainName', '.skewed.de']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+     
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../../graph_tool.html" >graph_tool</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="../community.html" accesskey="U">graph_tool.community</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for graph_tool.community.overlap_blockmodel</h1><div class="highlight"><pre>
+<span class="c">#! /usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># graph_tool -- a general graph manipulation python module</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2006-2015 Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;</span>
+<span class="c">#</span>
+<span class="c"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c"># it under the terms of the GNU General Public License as published by</span>
+<span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c"># (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c"># This program is distributed in the hope that it will be useful,</span>
+<span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c"># GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c"># You should have received a copy of the GNU General Public License</span>
+<span class="c"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+    <span class="nb">range</span> <span class="o">=</span> <span class="nb">xrange</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">_degree</span><span class="p">,</span> <span class="n">_prop</span><span class="p">,</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">GraphView</span><span class="p">,</span> <span class="n">libcore</span><span class="p">,</span> <span class="n">_get_rng</span><span class="p">,</span> <span class="n">PropertyMap</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">group_vector_property</span><span class="p">,</span> <span class="n">ungroup_vector_property</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="nn">dl_import</span> <span class="kn">import</span> <span class="n">dl_import</span>
+<span class="n">dl_import</span><span class="p">(</span><span class="s">&quot;from . import libgraph_tool_community as libcommunity&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">blockmodel</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="nn">blockmodel</span> <span class="kn">import</span> <span class="n">_bm_test</span>
+
+<div class="viewcode-block" id="OverlapBlockState"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState">[docs]</a><span class="k">class</span> <span class="nc">OverlapBlockState</span><span class="p">(</span><span class="n">BlockState</span><span class="p">):</span>
+    <span class="sd">r&quot;&quot;&quot;This class encapsulates the overlapping block state of a given graph.</span>
+
+<span class="sd">    This must be instantiated and used by functions such as :func:`mcmc_sweep`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    g : :class:`~graph_tool.Graph`</span>
+<span class="sd">        Graph to be modelled.</span>
+<span class="sd">    b : :class:`~graph_tool.PropertyMap` or :class:`numpy.ndarray` (optional, default: ``None``)</span>
+<span class="sd">        Initial block labels on the vertices or half-edges. If not supplied, it</span>
+<span class="sd">        will be randomly sampled.</span>
+<span class="sd">        If the value passed is a vertex property map, it will be assumed to be a</span>
+<span class="sd">        non-overlapping partition of the vertices. If it is an edge property</span>
+<span class="sd">        map, it should contain a vector for each edge, with the block labels at</span>
+<span class="sd">        each end point (sorted according to their vertex index, in the case of</span>
+<span class="sd">        undirected graphs, otherwise from source to target). If the value is an</span>
+<span class="sd">        :class:`numpy.ndarray`, it will be assumed to correspond directly to a</span>
+<span class="sd">        partition of the list of half-edges.</span>
+<span class="sd">    B : ``int`` (optional, default: ``None``)</span>
+<span class="sd">        Number of blocks. If not supplied it will be either obtained from the</span>
+<span class="sd">        parameter ``b``, or set to the maximum possible value according to the</span>
+<span class="sd">        minimum description length.</span>
+<span class="sd">    clabel : :class:`~graph_tool.PropertyMap` (optional, default: ``None``)</span>
+<span class="sd">        Constraint labels on the vertices. If supplied, vertices with different</span>
+<span class="sd">        label values will not be clustered in the same group.</span>
+<span class="sd">    deg_corr : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">        If ``True``, the degree-corrected version of the blockmodel ensemble will</span>
+<span class="sd">        be assumed, otherwise the traditional variant will be used.</span>
+<span class="sd">    max_BE : ``int`` (optional, default: ``1000``)</span>
+<span class="sd">        If the number of blocks exceeds this number, a sparse representation of</span>
+<span class="sd">        the block graph is used, which is slightly less efficient, but uses less</span>
+<span class="sd">        memory,</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">deg_corr</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">max_BE</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">BlockState</span><span class="o">.</span><span class="n">_state_ref_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c"># determine if there is a base graph, and overlapping structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;base_g&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="c"># overlapping information</span>
+        <span class="n">node_index</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;node_index&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">node_in_degs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;node_in_degs&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">node_out_degs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;node_out_degs&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">half_edges</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;half_edges&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">eindex</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;eindex&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">node_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Must specify base graph if node_index is specified...&quot;</span><span class="p">)</span>
+
+        <span class="c"># create overlapping structure</span>
+        <span class="k">if</span> <span class="n">node_index</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># keep base graph</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span> <span class="o">=</span> <span class="n">g</span>
+
+            <span class="c"># substitute provided graph by its half-edge graph</span>
+            <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">node_index</span><span class="p">,</span> <span class="n">half_edges</span><span class="p">,</span> <span class="n">eindex</span> <span class="o">=</span> <span class="n">half_edge_graph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+
+        <span class="c"># create half edges set if absent</span>
+        <span class="k">if</span> <span class="n">half_edges</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">half_edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int64_t&gt;&quot;</span><span class="p">)</span>
+            <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_nodeset_overlap</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                             <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">node_index</span><span class="p">),</span>
+                                             <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">half_edges</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_index</span> <span class="o">=</span> <span class="n">node_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">half_edges</span> <span class="o">=</span> <span class="n">half_edges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eindex</span> <span class="o">=</span> <span class="n">eindex</span>
+
+        <span class="c"># configure the main graph and block model parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">num_edges</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="o">=</span> <span class="n">deg_corr</span>
+
+        <span class="c"># initialize weights to unity</span>
+        <span class="n">eweight</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">eweight</span><span class="o">.</span><span class="n">fa</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">vweight</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">vweight</span><span class="o">.</span><span class="n">fa</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eweight</span> <span class="o">=</span> <span class="n">eweight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vweight</span> <span class="o">=</span> <span class="n">vweight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_weighted</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="c"># # ensure we have at most as many blocks as nodes</span>
+        <span class="c"># if B is not None:</span>
+        <span class="c">#     B = min(B, self.g.num_vertices())</span>
+
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># create a random partition into B blocks.</span>
+            <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">B</span> <span class="o">=</span> <span class="n">get_max_B</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">())</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span>
+            <span class="n">ba</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span>
+            <span class="n">ba</span><span class="p">[:</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>        <span class="c"># avoid empty blocks</span>
+            <span class="k">if</span> <span class="n">B</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">():</span>
+                <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">ba</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">fa</span> <span class="o">=</span> <span class="n">ba</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># if a partition is available, we will incorporate it.</span>
+            <span class="c"># in the overlapping case</span>
+            <span class="c"># at this point, *b* must correspond to the partition of</span>
+            <span class="c"># *half-edges*</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">fa</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value_type</span><span class="o">=</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">own_property</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">B</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="c"># if B &gt; self.N:</span>
+        <span class="c">#     raise ValueError(&quot;B &gt; N!&quot;)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">B</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Maximum value of b is larger or equal to B!&quot;</span><span class="p">)</span>
+
+        <span class="c"># Construct block-graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bg</span> <span class="o">=</span> <span class="n">get_block_graph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vweight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">set_fast_edge_removal</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">]</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">ep</span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="s">&quot;count&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mrp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">degree_property_map</span><span class="p">(</span><span class="s">&quot;out&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mrs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mrm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">degree_property_map</span><span class="p">(</span><span class="s">&quot;in&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mrs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mrm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrp</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_vector</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">B</span>
+
+        <span class="c"># if overlapping, the node counts must correspond to actual nodes,</span>
+        <span class="c"># not half-edges.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wr</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">bv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_overlap_blocks</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_wr_overlap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bv</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wr</span><span class="p">))</span>
+
+        <span class="n">NN</span> <span class="o">=</span> <span class="n">GraphView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">skip_vfilt</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap_stats</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_overlap_stats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                             <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+                                                             <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_edges</span><span class="p">),</span>
+                                                             <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_index</span><span class="p">),</span>
+                                                             <span class="n">NN</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">clabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clabel</span><span class="p">,</span> <span class="n">PropertyMap</span><span class="p">):</span>
+                <span class="c"># if clabel is a property map, we will assume it constraints the *nodes*</span>
+                <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">clabel</span><span class="o">.</span><span class="n">a</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clabel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_index</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">pmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="p">,</span> <span class="n">clabel</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># if clabel is an array, we will assume it constraints the *half-edges*</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clabel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">clabel</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clabel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">emat</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">max_BE</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">max_BE</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span> <span class="o">=</span> <span class="n">max_BE</span>
+
+        <span class="c"># used by mcmc_sweep()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">egroups</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nsampler</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sweep_vertices</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">overlap_partition_stats</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges_dl</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="c"># computation cache</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_safelog</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_xlogx</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_lgamma</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">BlockState</span><span class="o">.</span><span class="n">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;OverlapBlockState object with </span><span class="si">%d</span><span class="s"> blocks,</span><span class="si">%s</span><span class="s"> for graph </span><span class="si">%s</span><span class="s">, at 0x</span><span class="si">%x</span><span class="s">&gt;&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="s">&quot; degree corrected,&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__init_partition_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">edges_dl</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges_dl</span> <span class="o">=</span> <span class="n">edges_dl</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">init_overlap_partition_stats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                                             <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+                                                                             <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">),</span>
+                                                                             <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">edges_dl</span><span class="p">,</span>
+                                                                             <span class="bp">self</span><span class="o">.</span><span class="n">overlap_stats</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">overlap_partition_stats</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="OverlapBlockState.copy"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">deg_corr</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clabel</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">overlap</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Copies the block state. The parameters override the state properties, and</span>
+<span class="sd">         have the same meaning as in the constructor. If ``overlap=False`` an</span>
+<span class="sd">         instance of :class:`~graph_tool.community.BlockState` is returned.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">overlap</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">OverlapBlockState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+                                      <span class="n">eweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">,</span>
+                                      <span class="n">vweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vweight</span><span class="p">,</span>
+                                      <span class="n">b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">b</span><span class="p">,</span>
+                                      <span class="n">B</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">B</span><span class="p">,</span>
+                                      <span class="n">clabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="o">.</span><span class="n">a</span> <span class="k">if</span> <span class="n">clabel</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">clabel</span><span class="p">,</span>
+                                      <span class="n">deg_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="k">if</span> <span class="n">deg_corr</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">deg_corr</span><span class="p">,</span>
+                                      <span class="n">base_g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span>
+                                      <span class="n">half_edges</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">half_edges</span><span class="p">,</span>
+                                      <span class="n">node_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">node_index</span><span class="p">,</span>
+                                      <span class="n">eindex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eindex</span><span class="p">,</span>
+                                      <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">BlockState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span>
+                               <span class="n">b</span><span class="o">=</span><span class="n">b</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nonoverlap_blocks</span><span class="p">(),</span>
+                               <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span>
+                               <span class="n">clabel</span><span class="o">=</span><span class="n">clabel</span> <span class="k">if</span> <span class="n">clabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                               <span class="n">deg_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="k">if</span> <span class="n">deg_corr</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">deg_corr</span><span class="p">,</span>
+                               <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">state</span><span class="o">.</span><span class="n">_BlockState__check_clabel</span><span class="p">():</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">a</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">clabel</span><span class="o">.</span><span class="n">a</span> <span class="o">*</span> <span class="n">state</span><span class="o">.</span><span class="n">B</span>
+            <span class="n">continuous_map</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">_BlockState__check_clabel</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">state</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+                     <span class="n">eweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eweight</span><span class="p">,</span>
+                     <span class="n">vweight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vweight</span><span class="p">,</span>
+                     <span class="n">b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span>
+                     <span class="n">B</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span>
+                     <span class="n">clabel</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="o">.</span><span class="n">a</span><span class="p">),</span>
+                     <span class="n">deg_corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span><span class="p">,</span>
+                     <span class="n">base_g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span>
+                     <span class="n">half_edges</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">half_edges</span><span class="p">,</span>
+                     <span class="n">node_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">node_index</span><span class="p">,</span>
+                     <span class="n">eindex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eindex</span><span class="p">,</span>
+                     <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+<div class="viewcode-block" id="OverlapBlockState.get_block_state"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState.get_block_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_block_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vweight</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">overlap</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                        <span class="n">deg_corr</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns a :class:`~graph_tool.community.BlockState`` (or</span>
+<span class="sd">        :class:`~graph_tool.community.OverlapBlockState`` if ``overlap==True``)</span>
+<span class="sd">        corresponding to the block graph. The parameters have the same meaning</span>
+<span class="sd">        as the in the constructor.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overlap</span><span class="p">:</span>
+            <span class="n">bg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">mrs</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">own_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mrs</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="n">wr</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">own_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wr</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">BlockState</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span> <span class="n">eweight</span><span class="o">=</span><span class="n">mrs</span><span class="p">,</span>
+                               <span class="n">vweight</span><span class="o">=</span><span class="n">wr</span> <span class="k">if</span> <span class="n">vweight</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+                               <span class="n">b</span><span class="o">=</span><span class="n">bg</span><span class="o">.</span><span class="n">vertex_index</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">b</span><span class="p">,</span>
+                               <span class="n">deg_corr</span><span class="o">=</span><span class="n">deg_corr</span><span class="p">,</span>
+                               <span class="n">clabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bclabel</span><span class="p">(),</span>
+                               <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">)</span>
+            <span class="n">n_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c">## FIXME: Move this to C++</span>
+            <span class="n">bg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">())</span>
+            <span class="n">bg</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+                <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="n">r</span><span class="p">]</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+                <span class="n">bg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">bg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">bg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+
+            <span class="n">state</span> <span class="o">=</span> <span class="n">OverlapBlockState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+                                      <span class="n">b</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">a</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                                      <span class="n">deg_corr</span><span class="o">=</span><span class="n">deg_corr</span><span class="p">,</span>
+                                      <span class="n">clabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clabel</span><span class="p">,</span>
+                                      <span class="n">base_g</span><span class="o">=</span><span class="n">bg</span><span class="p">,</span>
+                                      <span class="n">node_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span>
+                                      <span class="n">eindex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eindex</span><span class="p">,</span>
+                                      <span class="n">max_BE</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_BE</span><span class="p">)</span>
+            <span class="n">n_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">vertex_index</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int64_t&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span><span class="p">,</span> <span class="n">n_map</span>
+</div>
+<div class="viewcode-block" id="OverlapBlockState.get_edge_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState.get_edge_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_edge_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns an edge property map which contains the block labels pairs for each</span>
+<span class="sd">        edge.&quot;&quot;&quot;</span>
+        <span class="n">be</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int&gt;&quot;</span><span class="p">)</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_be_overlap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">be</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_index</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">be</span>
+</div>
+<div class="viewcode-block" id="OverlapBlockState.get_overlap_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState.get_overlap_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_overlap_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns the mixed membership of each vertex.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bv : :class:`PropertyMap`</span>
+<span class="sd">           A vector-valued vertex property map containing the block memberships</span>
+<span class="sd">           of each node.</span>
+<span class="sd">        bc_in : :class:`PropertyMap`</span>
+<span class="sd">           The labelled in-degrees of each node, i.e. how many in-edges belong</span>
+<span class="sd">           to each group, in the same order as the ``bv`` property above.</span>
+<span class="sd">        bc_out : :class:`PropertyMap`</span>
+<span class="sd">           The labelled out-degrees of each node, i.e. how many out-edges belong</span>
+<span class="sd">           to each group, in the same order as the ``bv`` property above.</span>
+<span class="sd">        bc_total : :class:`PropertyMap`</span>
+<span class="sd">           The labelled total degrees of each node, i.e. how many incident edges</span>
+<span class="sd">           belong to each group, in the same order as the ``bv`` property above.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int&gt;&quot;</span><span class="p">)</span>
+        <span class="n">bc_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int&gt;&quot;</span><span class="p">)</span>
+        <span class="n">bc_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int&gt;&quot;</span><span class="p">)</span>
+        <span class="n">bc_total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int&gt;&quot;</span><span class="p">)</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_bv_overlap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_index</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bv</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bc_in</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bc_out</span><span class="p">),</span>
+                                    <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bc_total</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">bv</span><span class="p">,</span> <span class="n">bc_in</span><span class="p">,</span> <span class="n">bc_out</span><span class="p">,</span> <span class="n">bc_total</span>
+</div>
+<div class="viewcode-block" id="OverlapBlockState.get_nonoverlap_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState.get_nonoverlap_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_nonoverlap_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns a scalar-valued vertex property map with the block mixture</span>
+<span class="sd">        represented as a single number.&quot;&quot;&quot;</span>
+
+        <span class="n">bv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_overlap_blocks</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_overlap_split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                       <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bv</span><span class="p">),</span>
+                                       <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">b</span>
+</div>
+<div class="viewcode-block" id="OverlapBlockState.get_majority_blocks"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState.get_majority_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_majority_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Returns a scalar-valued vertex property map with the majority block</span>
+<span class="sd">        membership of each node.&quot;&quot;&quot;</span>
+
+        <span class="n">bv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_overlap_blocks</span><span class="p">()</span>
+        <span class="n">bv</span><span class="p">,</span> <span class="n">bc</span> <span class="o">=</span> <span class="n">bv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bv</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_maj_overlap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                     <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bv</span><span class="p">),</span>
+                                     <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">bc</span><span class="p">),</span>
+                                     <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">b</span>
+</div>
+<div class="viewcode-block" id="OverlapBlockState.entropy"><a class="viewcode-back" href="../../../community.html#graph_tool.community.OverlapBlockState.entropy">[docs]</a>    <span class="k">def</span> <span class="nf">entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complete</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">partition_dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">edges_dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                <span class="n">degree_dl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dl_ent</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">r&quot;&quot;&quot;Calculate the entropy associated with the current overlapping partition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        complete : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the complete entropy will be returned, including constant</span>
+<span class="sd">            terms not relevant to the block partition.</span>
+<span class="sd">        dl : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the full description length will be returned.</span>
+<span class="sd">        partition_dl : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, and ``dl == True`` the partition description length</span>
+<span class="sd">            will be considered.</span>
+<span class="sd">        edges_dl : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, and ``dl == True`` the edge matrix description length</span>
+<span class="sd">            will be considered.</span>
+<span class="sd">        degree_dl : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, and ``dl == True`` the degree sequence description</span>
+<span class="sd">            length will be considered.</span>
+<span class="sd">        multigraph : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the multigraph entropy will be used. Only has an effect</span>
+<span class="sd">            if ``dense == True``.</span>
+<span class="sd">        norm : ``bool`` (optional, default: ``True``)</span>
+<span class="sd">            If ``True``, the entropy will be &quot;normalized&quot; by dividing by the</span>
+<span class="sd">            number of edges.</span>
+<span class="sd">        dl_ent : ``bool`` (optional, default: ``False``)</span>
+<span class="sd">            If ``True``, the description length of the degree sequence will be</span>
+<span class="sd">            approximated by its entropy.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        For the traditional blockmodel (``deg_corr == False``), the entropy is</span>
+<span class="sd">        given by</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">          \mathcal{S}_t &amp;\cong E - \frac{1}{2} \sum_{rs}e_{rs}\ln\left(\frac{e_{rs}}{n_rn_s}\right), \\</span>
+<span class="sd">          \mathcal{S}^d_t &amp;\cong E - \sum_{rs}e_{rs}\ln\left(\frac{e_{rs}}{n_rn_s}\right),</span>
+
+<span class="sd">        for undirected and directed graphs, respectively, where :math:`e_{rs}`</span>
+<span class="sd">        is the number of edges from block :math:`r` to :math:`s` (or the number</span>
+<span class="sd">        of half-edges for the undirected case when :math:`r=s`), and :math:`n_r</span>
+<span class="sd">        = \sum_ib_i^r` is the number of vertices in block :math:`r`, with</span>
+<span class="sd">        :math:`\vec{b}_i` being a binary vector with :math:`B` entries</span>
+<span class="sd">        describing the mixed membership of node :math:`i`. Note that because of</span>
+<span class="sd">        the possible overlaps, we have :math:`\sum_rn_r \ge N`.</span>
+
+<span class="sd">        For the degree-corrected variant with &quot;hard&quot; degree constraints the</span>
+<span class="sd">        equivalent expressions are</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \mathcal{S}_c &amp;\cong -E -\sum_{ir}\ln k_i^r! - \frac{1}{2} \sum_{rs}e_{rs}\ln\left(\frac{e_{rs}}{e_re_s}\right), \\</span>
+<span class="sd">            \mathcal{S}^d_c &amp;\cong -E -\sum_{ir}\left(\ln {k^+}_i^r! + \ln {k^-}_i^r! \right) - \sum_{rs}e_{rs}\ln\left(\frac{e_{rs}}{e^+_re^-_s}\right),</span>
+
+<span class="sd">        where :math:`e_r = \sum_se_{rs}` is the number of half-edges incident on</span>
+<span class="sd">        block :math:`r`, :math:`e^+_r = \sum_se_{rs}` and :math:`e^-_r =</span>
+<span class="sd">        \sum_se_{sr}` are the numbers of out- and in-edges adjacent to block</span>
+<span class="sd">        :math:`r`, respectively, and :math:`k_i^r` is the degree of node</span>
+<span class="sd">        :math:`i` of type :math:`r`, whereas :math:`{k^+}_i^r` and</span>
+<span class="sd">        :math:`{k^-}_i^r` are the labeled out- and in-degrees, respectively.</span>
+
+<span class="sd">        If ``multigraph == True``, the entropy used will be of the &quot;Poisson&quot;</span>
+<span class="sd">        model, with the additional term:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            {\mathcal{S}_{cm}^{(d)}} = \mathcal{S}_c^{(d)} + \sum_{i&gt;j}\sum_{rs} \ln A^{rs}_{ij}! + \sum_i\sum_{rs} \ln A^{rs}_{ii}!!</span>
+
+
+<span class="sd">        If ``complete == False`` only the last term of the equations above will</span>
+<span class="sd">        be returned.</span>
+
+<span class="sd">        If ``dl == True``, the description length :math:`\mathcal{L}_t` of the</span>
+<span class="sd">        model will be returned as well:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">           \mathcal{L}_t = \ln\Omega_m + \ln\left(\!\!{D \choose N}\!\!\right) + \sum_d \ln {\left(\!\!{{B\choose d}\choose n_d}\!\!\right)} + \ln N! - \sum_{\vec{b}}\ln n_{\vec{b}}!,</span>
+
+<span class="sd">        where :math:`d \equiv |\vec{b}|_1 = \sum_rb_r` is the mixture</span>
+<span class="sd">        size, :math:`n_d` is the number of nodes in a mixture of size :math:`d`,</span>
+<span class="sd">        :math:`D` is the maximum value of :math:`d`, :math:`n_{\vec{b}}` is the</span>
+<span class="sd">        number of nodes in mixture :math:`\vec{b}`, and</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \Omega_m = \left(\!\!{\left(\!{B \choose 2}\!\right) \choose E}\!\!\right)</span>
+
+<span class="sd">        is the number of different :math:`e_{rs}` matrices for undirected</span>
+<span class="sd">        graphs, whereas for directed graphs we have</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \Omega_m = \left(\!\!{B^2 \choose E}\!\!\right).</span>
+
+
+<span class="sd">        Note that for the degree-corrected version the description length is</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \mathcal{L}_c = \mathcal{L}_t + \sum_r\ln\left(\!\!{m_r \choose e_r}\!\!\right) + \sum_{\vec{b}}\min\left(\mathcal{L}^{(1)}_{\vec{b}}, \mathcal{L}^{(2)}_{\vec{b}}\right),</span>
+
+<span class="sd">        where :math:`m_r` is the number of non-empty mixtures which contain type :math:`r`, and</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \mathcal{L}^{(1)}_{\vec{b}} &amp;= \sum_r\ln{\left(\!\!{n_{\vec{b}}\choose e^r_{\vec{b}}}\!\!\right)}, \\</span>
+<span class="sd">            \mathcal{L}^{(2)}_{\vec{b}} &amp;= \sum_rb_r\ln\Xi_{\vec{b}}^r + \ln n_{\vec{b}}! - \sum_{\vec{k}} \ln n^{\vec{b}}_{\vec{k}}!,</span>
+
+<span class="sd">        and :math:`\ln\Xi_{\vec{b}}^r \simeq 2\sqrt{\zeta(2)e_{\vec{b}}^r}`,</span>
+<span class="sd">        where :math:`\zeta(x)` is the `Riemann zeta function</span>
+<span class="sd">        &lt;https://en.wikipedia.org/wiki/Riemann_zeta_function&gt;`_, and</span>
+<span class="sd">        :math:`n^{\vec{b}}_{\vec{k}}` is the number of nodes in mixture</span>
+<span class="sd">        :math:`\vec{b}` with labelled degree :math:`\vec{k}`. For directed</span>
+<span class="sd">        graphs we have instead :math:`\vec{k} \to (\vec{k}^-, \vec{k}^+)`, and</span>
+<span class="sd">        :math:`\ln\Xi_{\vec{b}}^r \to \ln{\Xi^+}_{\vec{b}}^r +</span>
+<span class="sd">        \ln{\Xi^-}_{\vec{b}}^r`.</span>
+
+<span class="sd">        If ``dl_ent=True`` is passed, this will be approximated instead by</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \mathcal{L}_c \simeq \mathcal{L}_t - \sum_{\vec{b}}n_{\vec{b}}\sum_{\vec{k}}p^{\vec{b}}_{\vec{k}}\ln p^{\vec{b}}_{\vec{k}},</span>
+
+<span class="sd">        where :math:`p^{\vec{b}}_{\vec{k}} = n^{\vec{b}}_{\vec{k}} / n_{\vec{b}}`.</span>
+
+<span class="sd">        If ``complete == False`` constants in the above equations which do not</span>
+<span class="sd">        depend on the partition of the nodes will be omitted.</span>
+
+<span class="sd">        Note that in all cases if ``norm == True`` the value returned</span>
+<span class="sd">        corresponds to the entropy `per edge`, i.e. :math:`(\mathcal{S}_{t/c}\;[\,+\,\mathcal{L}_{t/c}])/ E`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="n">xi_fast</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;xi_fast&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">dl_deg_alt</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;dl_deg_alt&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>  <span class="c"># compare the two deg encodings</span>
+        <span class="n">dense</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;dense&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_g</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">E</span>
+
+        <span class="k">if</span> <span class="n">dense</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Dense entropy for overlapping model not yet implemented&quot;</span><span class="p">)</span>
+
+            <span class="n">S</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">entropy_dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                            <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrs</span><span class="p">),</span>
+                                            <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wr</span><span class="p">),</span>
+                                            <span class="n">multigraph</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">entropy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                     <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrs</span><span class="p">),</span>
+                                     <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrp</span><span class="p">),</span>
+                                     <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mrm</span><span class="p">),</span>
+                                     <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wr</span><span class="p">),</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">multigraph</span><span class="p">:</span>
+                <span class="n">S</span> <span class="o">+=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">overlap_parallel_entropy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">overlap_stats</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span><span class="p">:</span>
+                <span class="n">S</span> <span class="o">+=</span> <span class="n">libcommunity</span><span class="o">.</span><span class="n">deg_entropy_term</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                                   <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">overlap_stats</span><span class="p">,</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span><span class="p">:</span>
+                <span class="n">S</span> <span class="o">-=</span> <span class="n">E</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">S</span> <span class="o">+=</span> <span class="n">E</span>
+
+        <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isinf</span><span class="p">(</span><span class="n">S</span><span class="p">),</span> <span class="s">&quot;invalid entropy </span><span class="si">%g</span><span class="s"> (</span><span class="si">%s</span><span class="s">) &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="n">complete</span><span class="p">,</span>
+                                                                                            <span class="n">random</span><span class="o">=</span><span class="n">random</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="n">dl</span><span class="p">,</span>
+                                                                                            <span class="n">partition_dl</span><span class="o">=</span><span class="n">partition_dl</span><span class="p">,</span>
+                                                                                            <span class="n">dense</span><span class="o">=</span><span class="n">dense</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="n">multigraph</span><span class="p">,</span>
+                                                                                            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">dl</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">edges_dl</span><span class="p">:</span>
+                <span class="n">actual_B</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wr</span><span class="o">.</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">S</span> <span class="o">+=</span> <span class="n">model_entropy</span><span class="p">(</span><span class="n">actual_B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">(),</span>
+                                   <span class="n">nr</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+                    <span class="k">assert</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isinf</span><span class="p">(</span><span class="n">S</span><span class="p">),</span> <span class="s">&quot;invalid entropy </span><span class="si">%g</span><span class="s"> (</span><span class="si">%s</span><span class="s">) &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="n">complete</span><span class="p">,</span>
+                                                                                                    <span class="n">random</span><span class="o">=</span><span class="n">random</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="n">dl</span><span class="p">,</span>
+                                                                                                    <span class="n">partition_dl</span><span class="o">=</span><span class="n">partition_dl</span><span class="p">,</span>
+                                                                                                    <span class="n">dense</span><span class="o">=</span><span class="n">dense</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="n">multigraph</span><span class="p">,</span>
+                                                                                                    <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deg_corr</span> <span class="ow">and</span> <span class="n">degree_dl</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span><span class="o">.</span><span class="n">is_enabled</span><span class="p">():</span>
+                    <span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span><span class="o">.</span><span class="n">get_deg_dl</span><span class="p">(</span><span class="n">dl_ent</span><span class="p">,</span> <span class="n">dl_deg_alt</span><span class="p">,</span> <span class="n">xi_fast</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__init_partition_stats</span><span class="p">(</span><span class="n">empty</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                    <span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span><span class="o">.</span><span class="n">get_deg_dl</span><span class="p">(</span><span class="n">dl_ent</span><span class="p">,</span> <span class="n">dl_deg_alt</span><span class="p">,</span> <span class="n">xi_fast</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__init_partition_stats</span><span class="p">(</span><span class="n">empty</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+                    <span class="k">assert</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isinf</span><span class="p">(</span><span class="n">S</span><span class="p">),</span> <span class="s">&quot;invalid entropy </span><span class="si">%g</span><span class="s"> (</span><span class="si">%s</span><span class="s">) &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="n">complete</span><span class="p">,</span>
+                                                                                                    <span class="n">random</span><span class="o">=</span><span class="n">random</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="n">dl</span><span class="p">,</span>
+                                                                                                    <span class="n">partition_dl</span><span class="o">=</span><span class="n">partition_dl</span><span class="p">,</span>
+                                                                                                    <span class="n">dense</span><span class="o">=</span><span class="n">dense</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="n">multigraph</span><span class="p">,</span>
+                                                                                                    <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">partition_dl</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span><span class="o">.</span><span class="n">is_enabled</span><span class="p">():</span>
+                    <span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span><span class="o">.</span><span class="n">get_partition_dl</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__init_partition_stats</span><span class="p">(</span><span class="n">empty</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                    <span class="n">S</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_stats</span><span class="o">.</span><span class="n">get_partition_dl</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__init_partition_stats</span><span class="p">(</span><span class="n">empty</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">_bm_test</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">isnan</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isinf</span><span class="p">(</span><span class="n">S</span><span class="p">),</span> <span class="s">&quot;invalid entropy </span><span class="si">%g</span><span class="s"> (</span><span class="si">%s</span><span class="s">) &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">complete</span><span class="o">=</span><span class="n">complete</span><span class="p">,</span>
+                                                                                            <span class="n">random</span><span class="o">=</span><span class="n">random</span><span class="p">,</span> <span class="n">dl</span><span class="o">=</span><span class="n">dl</span><span class="p">,</span>
+                                                                                            <span class="n">partition_dl</span><span class="o">=</span><span class="n">partition_dl</span><span class="p">,</span>
+                                                                                            <span class="n">dense</span><span class="o">=</span><span class="n">dense</span><span class="p">,</span> <span class="n">multigraph</span><span class="o">=</span><span class="n">multigraph</span><span class="p">,</span>
+                                                                                            <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">S</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">E</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">S</span>
+</div></div>
+<span class="k">def</span> <span class="nf">half_edge_graph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">r&quot;&quot;&quot;Generate a half-edge graph, where each half-edge is represented by a node,</span>
+<span class="sd">    and an edge connects the half-edges like in the original graph.&quot;&quot;&quot;</span>
+
+    <span class="n">E</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">num_edges</span><span class="p">()</span>
+
+    <span class="n">b_array</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c"># if no partition is given, obtain a random one.</span>
+        <span class="n">ba</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">E</span><span class="p">)</span>
+        <span class="n">ba</span><span class="p">[:</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>        <span class="c"># avoid empty blocks</span>
+        <span class="k">if</span> <span class="n">B</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ba</span><span class="p">):</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">ba</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">ba</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="c"># if given an array, assume it corresponds to the *final* half-edge</span>
+        <span class="c"># partitions</span>
+        <span class="n">b_array</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">key_type</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;v&quot;</span><span class="p">:</span>
+        <span class="c"># If a vertex partition is given, we convert it into a</span>
+        <span class="c"># non-overlapping edge partition</span>
+        <span class="n">be</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int&gt;&quot;</span><span class="p">)</span>
+        <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_be_from_b_overlap</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                           <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">be</span><span class="p">),</span>
+                                           <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">be</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># If an half-edge partition is provided, we incorporate it</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value_type</span><span class="o">=</span><span class="s">&quot;vector&lt;int32_t&gt;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">b_array</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">bs</span><span class="p">,</span> <span class="n">bt</span> <span class="o">=</span> <span class="n">ungroup_vector_property</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">bt</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">b_array</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">bs</span><span class="p">,</span> <span class="n">bt</span> <span class="o">=</span> <span class="n">ungroup_vector_property</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">bs</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">B</span> <span class="ow">or</span> <span class="n">bt</span><span class="o">.</span><span class="n">fa</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">B</span> <span class="ow">or</span> <span class="p">(</span><span class="n">b_array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">b_array</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">B</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Maximum value of b is larger or equal to B!&quot;</span><span class="p">)</span>
+
+    <span class="n">eg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">())</span>
+    <span class="n">node_index</span> <span class="o">=</span> <span class="n">eg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int64_t&quot;</span><span class="p">)</span>
+    <span class="n">half_edges</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;vector&lt;int64_t&gt;&quot;</span><span class="p">)</span>
+    <span class="n">be</span> <span class="o">=</span> <span class="n">eg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+    <span class="n">eindex</span> <span class="o">=</span> <span class="n">eg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;int64_t&quot;</span><span class="p">)</span>
+
+    <span class="c"># create half-edge graph</span>
+    <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_eg_overlap</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                <span class="n">eg</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span>
+                                <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">eg</span><span class="p">,</span> <span class="n">be</span><span class="p">),</span>
+                                <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">eg</span><span class="p">,</span> <span class="n">node_index</span><span class="p">),</span>
+                                <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">half_edges</span><span class="p">),</span>
+                                <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">,</span> <span class="n">eg</span><span class="p">,</span> <span class="n">eindex</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">b_array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">be</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">b_array</span>
+
+    <span class="k">return</span> <span class="n">eg</span><span class="p">,</span> <span class="n">be</span><span class="p">,</span> <span class="n">node_index</span><span class="p">,</span> <span class="n">half_edges</span><span class="p">,</span> <span class="n">eindex</span>
+
+<span class="k">def</span> <span class="nf">augmented_graph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">node_index</span><span class="p">,</span> <span class="n">eweight</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">r&quot;&quot;&quot;Generates an augmented graph from the half-edge graph ``g`` partitioned</span>
+<span class="sd">    according to ``b``, where each half-edge belonging to a different group</span>
+<span class="sd">    inside each node forms a new node.&quot;&quot;&quot;</span>
+
+    <span class="n">node_map</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+    <span class="n">br_b</span> <span class="o">=</span> <span class="n">libcore</span><span class="o">.</span><span class="n">Vector_int32_t</span><span class="p">()</span>
+    <span class="n">br_ni</span> <span class="o">=</span> <span class="n">libcore</span><span class="o">.</span><span class="n">Vector_int32_t</span><span class="p">()</span>
+    <span class="n">libcommunity</span><span class="o">.</span><span class="n">get_augmented_overlap</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">_Graph__graph</span><span class="p">,</span>
+                                       <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span>
+                                       <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">node_index</span><span class="p">),</span>
+                                       <span class="n">_prop</span><span class="p">(</span><span class="s">&quot;v&quot;</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">node_map</span><span class="p">),</span>
+                                       <span class="n">br_b</span><span class="p">,</span> <span class="n">br_ni</span><span class="p">)</span>
+
+
+    <span class="n">au</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">vcount</span><span class="p">,</span> <span class="n">ecount</span> <span class="o">=</span> <span class="n">condensation_graph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">node_map</span><span class="p">,</span>
+                                                 <span class="n">eweight</span><span class="o">=</span><span class="n">eweight</span><span class="p">,</span>
+                                                 <span class="n">self_loops</span><span class="o">=</span><span class="bp">True</span><span class="p">)[:</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">anidx</span> <span class="o">=</span> <span class="n">idx</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+    <span class="n">libcommunity</span><span class="o">.</span><span class="n">vector_map</span><span class="p">(</span><span class="n">anidx</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">br_ni</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+    <span class="n">ab</span> <span class="o">=</span> <span class="n">idx</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s">&quot;int&quot;</span><span class="p">)</span>
+    <span class="n">libcommunity</span><span class="o">.</span><span class="n">vector_map</span><span class="p">(</span><span class="n">ab</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">br_b</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">au</span><span class="p">,</span> <span class="n">ab</span><span class="p">,</span> <span class="n">anidx</span><span class="p">,</span> <span class="n">ecount</span><span class="p">,</span> <span class="n">node_map</span>
+
+<div class="viewcode-block" id="get_block_edge_gradient"><a class="viewcode-back" href="../../../community.html#graph_tool.community.get_block_edge_gradient">[docs]</a><span class="k">def</span> <span class="nf">get_block_edge_gradient</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">be</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">r&quot;&quot;&quot;Get edge gradients corresponding to the block membership at the endpoints of</span>
+<span class="sd">    the edges given by the ``be`` edge property map.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    g : :class:`~graph_tool.Graph`</span>
+<span class="sd">        The graph.</span>
+<span class="sd">    be : :class:`~graph_tool.PropertyMap`</span>
+<span class="sd">        Vector-valued edge property map with the block membership at each</span>
+<span class="sd">        endpoint.</span>
+<span class="sd">    cmap : :class:`matplotlib.colors.Colormap` (optional, default: ``default_cm``)</span>
+<span class="sd">        Color map used to construct the gradient.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cp : :class:`~graph_tool.PropertyMap`</span>
+<span class="sd">       A vector-valued edge property map containing a color gradient.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..</span> <span class="nn">draw</span> <span class="kn">import</span> <span class="n">default_cm</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">default_cm</span>
+
+    <span class="n">cp</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s">&quot;vector&lt;double&gt;&quot;</span><span class="p">)</span>
+    <span class="n">rg</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s">&quot;inf&quot;</span><span class="p">),</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s">&quot;inf&quot;</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">be</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+        <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">rg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">rg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">rg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">rg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">())</span> <span class="o">&lt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">())</span> <span class="ow">or</span> <span class="n">g</span><span class="o">.</span><span class="n">is_directed</span><span class="p">():</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">be</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">t</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">be</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">((</span><span class="n">s</span> <span class="o">-</span> <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">rg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">((</span><span class="n">t</span> <span class="o">-</span> <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">rg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">rg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">cp</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">ct</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cp</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+<!-- <a href="graph-tool.pdf">(Download PDF version)</a> -->
+
+<p/>
+Latest <a href="/doc/dev/">development version docs</a> are also available.
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><img src="../../../_static/graph-icon.png" alt="logo" style="margin-right: 5px; margin-bottom:-2px;" /><a href="/">Project Homepage</a> &raquo;</li>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">graph-tool 2.2.44 documentation</a> &raquo;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../../graph_tool.html" >graph_tool</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="../community.html" >graph_tool.community</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Tiago de Paula Peixoto &lt;tiago@skewed.de&gt;.
+      Last updated on Jul 02, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
